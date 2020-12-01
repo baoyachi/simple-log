@@ -1,4 +1,6 @@
 # simple-log
+A simple-log with local file or stdout write by Rust.
+
 
 [![Chrono on crates.io][cratesio-image]][cratesio]
 [![Chrono on docs.rs][docsrs-image]][docsrs]
@@ -10,9 +12,6 @@
 [docsrs]: https://docs.rs/simple-log
 [depstatus-image]: https://deps.rs/repo/github/baoyachi/simple-log/status.svg
 [depstatus]:https://deps.rs/repo/github/baoyachi/simple-log
-
-
-A simple-log with local file or stdout.
 
 ## Quick Use
 ```toml

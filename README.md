@@ -16,12 +16,20 @@ A simple-log with local file or stdout write by Rust.
 ## Quick Use
 ```toml
 [dependencies]
-simple-log = "0.2"
+...
+log = "0.4"
+simple-log = "0.3"
 ```
 
 ```rust
-fn main() -> Result<(),String>{
-    simple_log::quick();
+#[macro_use]
+extern crate log;
+
+fn main() -> Result<(), String> {
+    simple_log::quick()?;
+
+    debug!("test builder debug");
+    info!("test builder info");
     Ok(())
 }
 ```
@@ -29,21 +37,26 @@ fn main() -> Result<(),String>{
 ## USAGE in project
 ```toml
 [dependencies]
-simple-log = "0.2"
+...
+log = "0.4"
+simple-log = "0.3"
 ```
 ```rust
+#[macro_use]
+extern crate log;
+
 use simple_log::LogConfigBuilder;
 
-fn main() -> Result<(),String>{
+fn main() -> Result<(), String> {
     let config = LogConfigBuilder::builder()
-                .path("./log/builder_log.log")
-                .size(1 * 100)
-                .roll_count(10)
-                .level("debug")
-                .output_file()
-                .output_console()
-                .build();
-            
+        .path("./log/builder_log.log")
+        .size(1 * 100)
+        .roll_count(10)
+        .level("debug")
+        .output_file()
+        .output_console()
+        .build();
+
     simple_log::new(config)?;
     debug!("test builder debug");
     info!("test builder info");

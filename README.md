@@ -1,5 +1,17 @@
 # simple-log
 
+[![Chrono on crates.io][cratesio-image]][cratesio]
+[![Chrono on docs.rs][docsrs-image]][docsrs]
+[![dependency on depstatus][depstatus-image]][depstatus]
+
+[cratesio-image]: https://img.shields.io/crates/v/simple-log.svg
+[cratesio]: https://crates.io/crates/simple-log
+[docsrs-image]: https://docs.rs/simple-log/badge.svg
+[docsrs]: https://docs.rs/simple-log
+[depstatus-image]: https://deps.rs/repo/github/baoyachi/simple-log/status.svg
+[depstatus]:https://deps.rs/repo/github/baoyachi/simple-log
+
+
 A simple-log with local file or stdout.
 
 ## Quick Use

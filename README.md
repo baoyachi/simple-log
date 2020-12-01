@@ -32,6 +32,8 @@ fn main() -> Result<(),String>{
 simple-log = "0.2"
 ```
 ```rust
+use simple_log::LogConfigBuilder;
+
 fn main() -> Result<(),String>{
     let config = LogConfigBuilder::builder()
                 .path("./log/builder_log.log")

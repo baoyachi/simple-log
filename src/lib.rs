@@ -64,7 +64,7 @@ impl LogConfigBuilder {
         self
     }
 
-    fn build(self) -> LogConfig {
+    pub fn build(self) -> LogConfig {
         self.0
     }
 }

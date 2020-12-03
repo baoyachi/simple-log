@@ -10,7 +10,6 @@ A simple-log with local file or stdout write by Rust.
 ## Quick Use
 ```toml
 [dependencies]
-...
 log = "0.4"
 simple-log = "0.3"
 ```
@@ -31,7 +30,6 @@ fn main() -> Result<(), String> {
 ## USAGE in project
 ```toml
 [dependencies]
-...
 log = "0.4"
 simple-log = "0.3"
 ```

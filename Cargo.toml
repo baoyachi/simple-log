@@ -14,3 +14,4 @@ license = "MIT AND Apache-2.0"
 [dependencies]
 log = "0.4.11"
 log4rs = "0.13.0"
+once_cell = "1.5.2"

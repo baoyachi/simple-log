@@ -6,11 +6,15 @@ use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
+use std::sync::Mutex;
+use once_cell::sync::OnceCell;
 
 type SimpleResult<T> = std::result::Result<T, String>;
 
+static LOG_CONF: OnceCell<Mutex<LogConfig>> = OnceCell::new();
+
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
-const SIMPLE_LOG_STDOUT: &str = "simple_log_stdout";
+const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
 
 #[derive(Debug)]
 enum OutKind {
@@ -75,9 +79,33 @@ pub fn new(log: LogConfig) -> SimpleResult<()> {
     Ok(())
 }
 
+
+////////////////////////////////////////////////////////////////////////
+/// The `quick` method with init simple-log
+/////////////////////////////////////////////////////////////////////////
+
+/// The `quick` not add any params in method. The inner filed just used default value.
+/// If your just want use in demo or test project. Your can use this method.
+///
+///
+/// # Examples
+///
+/// ```no_run
+/// #[macro_use]
+/// extern crate log;
+///
+/// fn main() -> Result<(), String> {
+///     simple_log::quick()?;
+///
+///     debug!("test builder debug");
+///     info!("test builder info");
+///     Ok(())
+/// }
+/// ```
 pub fn quick() -> SimpleResult<()> {
     let config = init_config(LogConfig::default())?;
     let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
+    // LOG_CONF.get_or_init(||);
     Ok(())
 }
 
@@ -96,7 +124,7 @@ pub(crate) fn init_config(mut log: LogConfig) -> SimpleResult<Config> {
                     .encoder(Box::new(encoder()))
                     .build();
                 builder = builder
-                    .appender(Appender::builder().build(SIMPLE_LOG_STDOUT, Box::new(console)));
+                    .appender(Appender::builder().build(SIMPLE_LOG_CONSOLE, Box::new(console)));
             }
         }
     }
@@ -105,7 +133,7 @@ pub(crate) fn init_config(mut log: LogConfig) -> SimpleResult<Config> {
         .build(
             Root::builder()
                 .appender(SIMPLE_LOG_FILE)
-                .appender(SIMPLE_LOG_STDOUT)
+                .appender(SIMPLE_LOG_CONSOLE)
                 .build(form_log_level(log.level)),
         )
         .map_err(|e| e.to_string())?;

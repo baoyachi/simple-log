@@ -80,13 +80,21 @@ pub fn new(log: LogConfig) -> SimpleResult<()> {
 }
 
 
-////////////////////////////////////////////////////////////////////////
-/// The `quick` method with init simple-log
-/////////////////////////////////////////////////////////////////////////
-
-/// The `quick` not add any params in method. The inner filed just used default value.
-/// If your just want use in demo or test project. Your can use this method.
+/// This method can quick init simple-log with no configuration.
 ///
+/// If your just want use in demo or test project. Your can use this method.
+/// The [quick] method not add any params in method. It's so easy.
+///
+/// The [`LogConfig`] filed just used inner default value.
+///
+///     path: ./tmp/simple_log.log //output file path
+///     level: debug //log level
+///     size: 10 //single log file size with unit:MB. 10MB eq:10*1024*1024
+///     out_kind:[file,console] //Output to file and terminal at the same time
+///     roll_count:10 //At the same time, it can save 10 files endwith .gz
+///
+///
+/// If you don't want use [quick] method.Also can use [new] method.
 ///
 /// # Examples
 ///

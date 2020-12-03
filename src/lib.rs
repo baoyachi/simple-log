@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate serde_derive;
+
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
@@ -16,13 +19,13 @@ static LOG_CONF: OnceCell<Mutex<LogConfig>> = OnceCell::new();
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 enum OutKind {
     File,
     Console,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct LogConfig {
     path: String,
     level: String,
@@ -73,6 +76,36 @@ impl LogConfigBuilder {
     }
 }
 
+
+/// The [new] method provide init simple-log instance.
+///
+/// This method need pass [LogConfig] param. Your can use [LogConfigBuilder] `build` [LogConfig].
+/// Also you can use [serde] with `Deserialize` init `LogConfig`.
+///
+/// # Examples
+///
+/// ```no_run
+/// #[macro_use]
+/// extern crate log;
+///
+/// use simple_log::LogConfigBuilder;
+///
+/// fn main() -> Result<(), String> {
+///    let config = LogConfigBuilder::builder()
+///            .path("./log/builder_log.log")
+///            .size(1 * 100)
+///            .roll_count(10)
+///            .level("info")
+///            .output_file()
+///            .output_console()
+///            .build();
+///     simple_log::new(config)?;
+///     debug!("test builder debug");
+///     info!("test builder info");
+///     Ok(())
+/// }
+/// ```
+///
 pub fn new(log: LogConfig) -> SimpleResult<()> {
     let config = init_config(log)?;
     let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
@@ -87,12 +120,13 @@ pub fn new(log: LogConfig) -> SimpleResult<()> {
 ///
 /// The [`LogConfig`] filed just used inner default value.
 ///
+/// ```bash
 ///     path: ./tmp/simple_log.log //output file path
 ///     level: debug //log level
 ///     size: 10 //single log file size with unit:MB. 10MB eq:10*1024*1024
 ///     out_kind:[file,console] //Output to file and terminal at the same time
 ///     roll_count:10 //At the same time, it can save 10 files endwith .gz
-///
+///```
 ///
 /// If you don't want use [quick] method.Also can use [new] method.
 ///
@@ -117,7 +151,7 @@ pub fn quick() -> SimpleResult<()> {
     Ok(())
 }
 
-pub(crate) fn init_config(mut log: LogConfig) -> SimpleResult<Config> {
+fn init_config(mut log: LogConfig) -> SimpleResult<Config> {
     init_default_log(&mut log);
 
     let mut builder = Config::builder();
@@ -208,36 +242,5 @@ fn form_log_level(level: String) -> LevelFilter {
         LOG_LEVEL_WARN => LevelFilter::Warn,
         LOG_LEVEL_ERROR => LevelFilter::Error,
         _ => LevelFilter::Debug,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::SimpleResult;
-    use log::*;
-
-    #[test]
-    fn test_log_quick() -> SimpleResult<()> {
-        crate::quick()?;
-        debug!("test debug");
-        info!("test info");
-        Ok(())
-    }
-
-    #[test]
-    fn test_log_build() -> SimpleResult<()> {
-        let config = LogConfigBuilder::builder()
-            .path("./log/builder_log.log")
-            .size(1 * 100)
-            .roll_count(10)
-            .level("debug")
-            .output_file()
-            .output_console()
-            .build();
-        crate::new(config)?;
-        debug!("test builder debug");
-        info!("test builder info");
-        Ok(())
     }
 }

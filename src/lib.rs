@@ -19,6 +19,7 @@ static LOG_CONF: OnceCell<Mutex<LogConfig>> = OnceCell::new();
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
 
+//TODO completed custom Serialize
 #[derive(Debug, Serialize, Deserialize)]
 enum OutKind {
     File,

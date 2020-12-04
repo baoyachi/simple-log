@@ -9,8 +9,8 @@ use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use std::sync::Mutex;
 use once_cell::sync::OnceCell;
+use std::sync::Mutex;
 
 type SimpleResult<T> = std::result::Result<T, String>;
 
@@ -38,15 +38,42 @@ pub struct LogConfig {
 pub struct LogConfigBuilder(LogConfig);
 
 impl LogConfigBuilder {
+    /// Construct a [LogConfig] by [`LogConfigBuilder::builder`]
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use simple_log::{LogConfigBuilder, LogConfig};
+    /// fn main() {
+    ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
+    /// }
+    /// ```
+    ///
     pub fn builder() -> Self {
         LogConfigBuilder(LogConfig::default())
     }
 
+    /// Receive file write path.
+    ///
+    /// Simple-log output path when [OutKind] value is `File`.
+    /// When [OutKind] value only is `console`,need ignore this method.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use simple_log::LogConfigBuilder;
+    ///
+    /// fn main() {
+    ///  let builder:LogConfigBuilder = LogConfigBuilder::builder().path("/tmp/log/simple_log.log");
+    /// }
+    /// ```
+    ///
     pub fn path<S: Into<String>>(mut self, path: S) -> LogConfigBuilder {
         self.0.path = path.into();
         self
     }
 
+    ///
     pub fn level<S: Into<String>>(mut self, level: S) -> LogConfigBuilder {
         self.0.level = level.into();
         self
@@ -76,7 +103,6 @@ impl LogConfigBuilder {
         self.0
     }
 }
-
 
 /// The [new] method provide init simple-log instance.
 ///
@@ -112,7 +138,6 @@ pub fn new(log: LogConfig) -> SimpleResult<()> {
     let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
     Ok(())
 }
-
 
 /// This method can quick init simple-log with no configuration.
 ///

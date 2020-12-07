@@ -7,7 +7,6 @@ extern crate serde_derive;
 mod out_kind;
 
 use crate::out_kind::OutKind;
-use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
@@ -47,7 +46,7 @@ impl LogConfigBuilder {
     /// fn main() {
     ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
     ///     let log_config:LogConfig = builder.build();
-    ///     println!("{:?}",config);
+    ///     println!("{:?}",log_config);
     /// }
     /// ```
     ///
@@ -192,7 +191,6 @@ pub fn quick() -> SimpleResult<()> {
     Ok(())
 }
 
-
 /// Provide init simple-log instance with stdout console on terminal.
 ///
 /// Method receive log level one of [log_level] mod.
@@ -249,7 +247,7 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
     }
 
     let config = config_builder
-        .build(root_builder.build(form_log_level(&log.level)))
+        .build(root_builder.build(log_level::form_log_level(&log.level)))
         .map_err(|e| e.to_string())?;
     Ok(config)
 }
@@ -301,21 +299,22 @@ fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
 }
 
 pub mod log_level {
+    use log::LevelFilter;
+
     pub const TRACE: &str = "trace";
     pub const DEBUG: &str = "debug";
     pub const INFO: &str = "info";
     pub const WARN: &str = "warn";
     pub const ERROR: &str = "error";
-}
 
-
-fn form_log_level(level: &str) -> LevelFilter {
-    match level {
-        log_level::TRACE => LevelFilter::Trace,
-        log_level::DEBUG => LevelFilter::Debug,
-        log_level::INFO => LevelFilter::Info,
-        log_level::WARN => LevelFilter::Warn,
-        log_level::ERROR => LevelFilter::Error,
-        _ => LevelFilter::Debug,
+    pub fn form_log_level(level: &str) -> LevelFilter {
+        match level {
+            TRACE => LevelFilter::Trace,
+            DEBUG => LevelFilter::Debug,
+            INFO => LevelFilter::Info,
+            WARN => LevelFilter::Warn,
+            ERROR => LevelFilter::Error,
+            _ => LevelFilter::Debug,
+        }
     }
 }

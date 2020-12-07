@@ -1,4 +1,4 @@
-use serde::{de, Deserializer, Deserialize};
+use serde::{de, Deserialize, Deserializer};
 
 const KIND_FILE: &str = "file";
 const KIND_CONSOLE: &str = "console";
@@ -11,18 +11,17 @@ pub enum OutKind {
 
 impl<'de> Deserialize<'de> for OutKind {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?.to_lowercase();
         match s.as_str() {
             KIND_FILE => Ok(OutKind::File),
             KIND_CONSOLE => Ok(OutKind::Console),
-            _ => { return Err(de::Error::custom(format!("Invalid state '{}'", s))); }
+            _ => return Err(de::Error::custom(format!("Invalid state '{}'", s))),
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

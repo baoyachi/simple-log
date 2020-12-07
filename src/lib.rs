@@ -3,6 +3,7 @@ extern crate serde_derive;
 
 mod out_kind;
 
+use crate::out_kind::OutKind;
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
@@ -13,7 +14,6 @@ use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use once_cell::sync::OnceCell;
 use std::sync::Mutex;
-use crate::out_kind::OutKind;
 
 type SimpleResult<T> = std::result::Result<T, String>;
 
@@ -177,7 +177,6 @@ pub fn quick() -> SimpleResult<()> {
     Ok(())
 }
 
-
 pub fn console(level: String) -> SimpleResult<()> {
     let mut config = LogConfig::default();
     config.level = level;
@@ -201,7 +200,6 @@ pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> S
     // LOG_CONF.get_or_init(||);
     Ok(())
 }
-
 
 fn build_config(log: &LogConfig) -> SimpleResult<Config> {
     let mut config_builder = Config::builder();

@@ -1,3 +1,6 @@
+//! simple-log is a very simple configuration log crates.
+//!
+
 #[macro_use]
 extern crate serde_derive;
 
@@ -40,8 +43,11 @@ impl LogConfigBuilder {
     ///
     /// ```no_run
     /// use simple_log::{LogConfigBuilder, LogConfig};
+    ///
     /// fn main() {
     ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
+    ///     let log_config:LogConfig = builder.build();
+    ///     println!("{:?}",config);
     /// }
     /// ```
     ///
@@ -59,12 +65,12 @@ impl LogConfigBuilder {
     /// ```no_run
     ///
     /// fn main() {
-    ///  use simple_log::LogConfigBuilder;
-    ///  use simple_log::LogConfig;
+    ///     use simple_log::LogConfigBuilder;
+    ///     use simple_log::LogConfig;
     ///
-    ///  let builder:LogConfigBuilder = LogConfigBuilder::builder().path("/tmp/log/simple_log.log");
-    ///  let config:LogConfig = builder.build();
-    ///  println!("{:?}",config);
+    ///     let builder:LogConfigBuilder = LogConfigBuilder::builder().path("/tmp/log/simple_log.log");
+    ///     let config:LogConfig = builder.build();
+    ///     println!("{:?}",config);
     /// }
     /// ```
     ///
@@ -89,6 +95,11 @@ impl LogConfigBuilder {
         self
     }
 
+    /// Configuration [LogConfigBuilder] with log output with console.
+    ///
+    /// If your application build with `--release`.This method should not be used
+    /// [output_file] method is recommended.
+    /// This is usually used with `debug` or `test` mode.
     pub fn output_console(mut self) -> LogConfigBuilder {
         self.0.out_kind.push(OutKind::Console);
         self
@@ -104,7 +115,7 @@ impl LogConfigBuilder {
     }
 }
 
-/// The [new] method provide init simple-log instance.
+/// The [new] method provide init simple-log instance with config.
 ///
 /// This method need pass [LogConfig] param. Your can use [LogConfigBuilder] `build` [LogConfig].
 /// Also you can use [serde] with `Deserialize` init `LogConfig`.
@@ -181,6 +192,10 @@ pub fn quick() -> SimpleResult<()> {
     Ok(())
 }
 
+
+/// Provide init simple-log instance with stdout console on terminal.
+///
+/// Method receive log level one of [log_level] mod.
 pub fn console(level: String) -> SimpleResult<()> {
     let mut config = LogConfig::default();
     config.level = level;
@@ -191,6 +206,13 @@ pub fn console(level: String) -> SimpleResult<()> {
     Ok(())
 }
 
+///Provide init simple-log instance with write file.
+///
+/// The param `path` is either an absolute path or lacking a leading `/`, relative to the `cwd` of your [LogConfig].
+/// The param `level` config log level with [log_level].
+/// The param `size` config single file size(MB).
+/// The param `roll_count` config single file size(MB).
+/// The file extension of the pattern is `.gz`,the archive files will be gzip-compressed.
 pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
     let config = LogConfig {
         path: path.into(),
@@ -247,7 +269,7 @@ fn init_default_log(log: &mut LogConfig) {
     }
 
     if log.level.is_empty() {
-        log.level = LOG_LEVEL_DEBUG.to_string()
+        log.level = log_level::DEBUG.to_string()
     }
 
     if log.out_kind.is_empty() {
@@ -278,19 +300,22 @@ fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
     Ok(Box::new(logfile))
 }
 
-pub const LOG_LEVEL_TRACE: &str = "trace";
-pub const LOG_LEVEL_DEBUG: &str = "debug";
-pub const LOG_LEVEL_INFO: &str = "info";
-pub const LOG_LEVEL_WARN: &str = "warn";
-pub const LOG_LEVEL_ERROR: &str = "error";
+pub mod log_level {
+    pub const TRACE: &str = "trace";
+    pub const DEBUG: &str = "debug";
+    pub const INFO: &str = "info";
+    pub const WARN: &str = "warn";
+    pub const ERROR: &str = "error";
+}
+
 
 fn form_log_level(level: &str) -> LevelFilter {
     match level {
-        LOG_LEVEL_TRACE => LevelFilter::Trace,
-        LOG_LEVEL_DEBUG => LevelFilter::Debug,
-        LOG_LEVEL_INFO => LevelFilter::Info,
-        LOG_LEVEL_WARN => LevelFilter::Warn,
-        LOG_LEVEL_ERROR => LevelFilter::Error,
+        log_level::TRACE => LevelFilter::Trace,
+        log_level::DEBUG => LevelFilter::Debug,
+        log_level::INFO => LevelFilter::Info,
+        log_level::WARN => LevelFilter::Warn,
+        log_level::ERROR => LevelFilter::Error,
         _ => LevelFilter::Debug,
     }
 }

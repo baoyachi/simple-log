@@ -57,10 +57,14 @@ impl LogConfigBuilder {
     /// # Examples
     ///
     /// ```no_run
-    /// use simple_log::LogConfigBuilder;
     ///
     /// fn main() {
+    ///  use simple_log::LogConfigBuilder;
+    ///  use simple_log::LogConfig;
+    ///
     ///  let builder:LogConfigBuilder = LogConfigBuilder::builder().path("/tmp/log/simple_log.log");
+    ///  let config:LogConfig = builder.build();
+    ///  println!("{:?}",config);
     /// }
     /// ```
     ///
@@ -280,8 +284,8 @@ pub const LOG_LEVEL_INFO: &str = "info";
 pub const LOG_LEVEL_WARN: &str = "warn";
 pub const LOG_LEVEL_ERROR: &str = "error";
 
-fn form_log_level(level: &String) -> LevelFilter {
-    match level.to_lowercase().as_str() {
+fn form_log_level(level: &str) -> LevelFilter {
+    match level {
         LOG_LEVEL_TRACE => LevelFilter::Trace,
         LOG_LEVEL_DEBUG => LevelFilter::Debug,
         LOG_LEVEL_INFO => LevelFilter::Info,

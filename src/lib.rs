@@ -180,35 +180,34 @@ pub fn quick() -> SimpleResult<()> {
 fn init_config(mut log: LogConfig) -> SimpleResult<Config> {
     init_default_log(&mut log);
 
-    let mut builder = Config::builder();
+
+    let mut config_builder = Config::builder();
+    let mut root_builder = Root::builder();
     for kind in &log.out_kind {
         match *kind {
             OutKind::File => {
-                builder = builder
+                config_builder = config_builder
                     .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(&log)?));
+                root_builder = root_builder.appender(SIMPLE_LOG_FILE);
             }
             OutKind::Console => {
                 let console = ConsoleAppender::builder()
                     .encoder(Box::new(encoder()))
                     .build();
-                builder = builder
+                config_builder = config_builder
                     .appender(Appender::builder().build(SIMPLE_LOG_CONSOLE, Box::new(console)));
+                root_builder = root_builder.appender(SIMPLE_LOG_CONSOLE);
             }
         }
     }
 
-    let config = builder
-        .build(
-            Root::builder()
-                .appender(SIMPLE_LOG_FILE)
-                .appender(SIMPLE_LOG_CONSOLE)
-                .build(form_log_level(log.level)),
-        )
+    let config = config_builder
+        .build(root_builder.build(form_log_level(log.level)))
         .map_err(|e| e.to_string())?;
     Ok(config)
 }
 
-//check log config,and give default value
+/// check log config,and give default value
 fn init_default_log(log: &mut LogConfig) {
     if log.path.trim().is_empty() {
         log.path = "./tmp/simple_log.log".to_string();

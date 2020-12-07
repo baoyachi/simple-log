@@ -134,7 +134,9 @@ impl LogConfigBuilder {
 /// ```
 ///
 pub fn new(log: LogConfig) -> SimpleResult<()> {
-    let config = init_config(log)?;
+    let mut log = log;
+    init_default_log(&mut log);
+    let config = build_config(&log)?;
     let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -171,23 +173,48 @@ pub fn new(log: LogConfig) -> SimpleResult<()> {
 /// }
 /// ```
 pub fn quick() -> SimpleResult<()> {
-    let config = init_config(LogConfig::default())?;
+    let mut config = LogConfig::default();
+    init_default_log(&mut config);
+    let config = build_config(&config)?;
     let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
     // LOG_CONF.get_or_init(||);
     Ok(())
 }
 
-fn init_config(mut log: LogConfig) -> SimpleResult<Config> {
-    init_default_log(&mut log);
+
+pub fn console(level: String) -> SimpleResult<()> {
+    let mut config = LogConfig::default();
+    config.level = level;
+    config.out_kind = vec![OutKind::Console];
+    let config = build_config(&config)?;
+    let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
+    // LOG_CONF.get_or_init(||);
+    Ok(())
+}
+
+pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
+    let mut config = LogConfig {
+        path: path.into(),
+        level: level.into(),
+        size,
+        out_kind: vec![OutKind::File],
+        roll_count,
+    };
+    let config = build_config(&config)?;
+    let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
+    // LOG_CONF.get_or_init(||);
+    Ok(())
+}
 
 
+fn build_config(log: &LogConfig) -> SimpleResult<Config> {
     let mut config_builder = Config::builder();
     let mut root_builder = Root::builder();
     for kind in &log.out_kind {
-        match *kind {
+        match kind {
             OutKind::File => {
                 config_builder = config_builder
-                    .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(&log)?));
+                    .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(log)?));
                 root_builder = root_builder.appender(SIMPLE_LOG_FILE);
             }
             OutKind::Console => {
@@ -202,7 +229,7 @@ fn init_config(mut log: LogConfig) -> SimpleResult<Config> {
     }
 
     let config = config_builder
-        .build(root_builder.build(form_log_level(log.level)))
+        .build(root_builder.build(form_log_level(&log.level)))
         .map_err(|e| e.to_string())?;
     Ok(config)
 }
@@ -259,7 +286,7 @@ pub const LOG_LEVEL_INFO: &str = "info";
 pub const LOG_LEVEL_WARN: &str = "warn";
 pub const LOG_LEVEL_ERROR: &str = "error";
 
-fn form_log_level(level: String) -> LevelFilter {
+fn form_log_level(level: &String) -> LevelFilter {
     match level.to_lowercase().as_str() {
         LOG_LEVEL_TRACE => LevelFilter::Trace,
         LOG_LEVEL_DEBUG => LevelFilter::Debug,

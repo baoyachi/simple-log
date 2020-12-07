@@ -19,7 +19,16 @@ use std::sync::Mutex;
 
 type SimpleResult<T> = std::result::Result<T, String>;
 
+struct Logger {
+    log_config: LogConfig,
+    handle: log4rs::Handle,
+}
+
 static LOG_CONF: OnceCell<Mutex<LogConfig>> = OnceCell::new();
+
+fn init_log_conf() -> SimpleResult<()> {
+    unimplemented!("not impl")
+}
 
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
@@ -148,6 +157,7 @@ pub fn new(log: LogConfig) -> SimpleResult<()> {
     init_default_log(&mut log);
     let config = build_config(&log)?;
     let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
+
     Ok(())
 }
 

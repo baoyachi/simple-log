@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate serde_derive;
 
+mod out_kind;
+
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
@@ -11,6 +13,7 @@ use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use once_cell::sync::OnceCell;
 use std::sync::Mutex;
+use crate::out_kind::OutKind;
 
 type SimpleResult<T> = std::result::Result<T, String>;
 
@@ -18,13 +21,6 @@ static LOG_CONF: OnceCell<Mutex<LogConfig>> = OnceCell::new();
 
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
-
-//TODO completed custom Serialize
-#[derive(Debug, Serialize, Deserialize)]
-enum OutKind {
-    File,
-    Console,
-}
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct LogConfig {
@@ -193,7 +189,7 @@ pub fn console(level: String) -> SimpleResult<()> {
 }
 
 pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
-    let mut config = LogConfig {
+    let config = LogConfig {
         path: path.into(),
         level: level.into(),
         size,

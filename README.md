@@ -56,7 +56,7 @@ fn main() -> Result<(), String> {
 }
 ```
 
-## simple-log format outPut   
+## simple-log format output   
 ```
 2020-12-07 15:06:03:260570000 [INFO] <json_log:16>:info json simple_log
 2020-12-07 15:06:03:262106000 [WARN] <json_log:17>:warn json simple_log

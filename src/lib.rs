@@ -1,7 +1,59 @@
+//! simple-log is a very simple configuration log crates.
+//!
+//! # Quick Start
+//!
+//! To get you started quickly, the easiest and quick way to used with demo or test project
+//!
+//! ```no_run
+//! #[macro_use]
+//! extern crate log;
+//!
+//! fn main() -> Result<(), String> {
+//!    simple_log::quick()?;
+//!
+//!    debug!("test builder debug");
+//!    info!("test builder info");
+//!    Ok(())
+//!}
+//! ```
+//!
+//! # Usage in project
+//!
+//! Configuration [LogConfig] in your project.
+//!
+//! ```no_run
+//!#[macro_use]
+//!extern crate log;
+//!
+//!use simple_log::LogConfigBuilder;
+//!
+//!fn main() -> Result<(), String> {
+//!    let config = LogConfigBuilder::builder()
+//!        .path("./log/builder_log.log")
+//!        .size(1 * 100)
+//!        .roll_count(10)
+//!        .level("debug")
+//!        .output_file()
+//!        .output_console()
+//!        .build();
+//!
+//!    simple_log::new(config)?;
+//!    debug!("test builder debug");
+//!    info!("test builder info");
+//!    Ok(())
+//!}
+//! ```
+//!
+//! For the user guide and futher documentation, please read
+//! [The Rust simple doc](https://github.com/baoyachi/simple-log).
+//!
+
 #[macro_use]
 extern crate serde_derive;
 
-use log::LevelFilter;
+mod out_kind;
+
+use crate::out_kind::OutKind;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
@@ -14,19 +66,73 @@ use std::sync::Mutex;
 
 type SimpleResult<T> = std::result::Result<T, String>;
 
-static LOG_CONF: OnceCell<Mutex<LogConfig>> = OnceCell::new();
+/// Simple-log global config.
+struct LogConf {
+    log_config: LogConfig,
+    handle: log4rs::Handle,
+}
+
+static LOG_CONF: OnceCell<Mutex<LogConf>> = OnceCell::new();
+
+fn init_log_conf(log_config: LogConfig) -> SimpleResult<()> {
+    let config = build_config(&log_config)?;
+    let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
+    LOG_CONF.get_or_init(|| Mutex::new(LogConf { log_config, handle }));
+    Ok(())
+}
+
+pub fn update_log_conf(log_config: LogConfig) -> SimpleResult<LogConfig> {
+    let log_conf = LOG_CONF.get().unwrap();
+    let mut guard = log_conf.lock().unwrap();
+    let config = build_config(&log_config)?;
+    guard.log_config = log_config;
+    guard.handle.set_config(config);
+    Ok(guard.log_config.clone())
+}
+
+/// update simple-log global config log level.
+///
+/// # Examples
+///
+/// ```edition2018
+/// fn main() -> Result<(), String> {
+///     use simple_log::{LogConfigBuilder, update_log_level, log_level};
+///     let config = LogConfigBuilder::builder()
+///         .path("./log/builder_log.log")
+///         .size(1 * 64)
+///        .roll_count(10)
+///        .level("debug")
+///        .output_file()
+///        .output_console()
+///        .build();
+///     simple_log::new(config)?;
+///
+///     //update log level
+///     let config = update_log_level(log_level::DEBUG)?;
+///     assert_eq!("debug",config.get_level());
+///     Ok(())
+/// }
+/// ```
+///
+pub fn update_log_level<S: Into<String>>(level: S) -> SimpleResult<LogConfig> {
+    let log_conf = LOG_CONF.get().unwrap();
+    let mut guard = log_conf.lock().unwrap();
+    guard.log_config.level = level.into();
+    let config = build_config(&guard.log_config)?;
+    guard.handle.set_config(config);
+    Ok(guard.log_config.clone())
+}
+
+pub fn get_log_conf() -> SimpleResult<LogConfig> {
+    let log_conf = LOG_CONF.get().unwrap();
+    let config = log_conf.lock().unwrap().log_config.clone();
+    Ok(config)
+}
 
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
 
-//TODO completed custom Serialize
-#[derive(Debug, Serialize, Deserialize)]
-enum OutKind {
-    File,
-    Console,
-}
-
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct LogConfig {
     path: String,
     level: String,
@@ -35,6 +141,29 @@ pub struct LogConfig {
     roll_count: u32,
 }
 
+impl LogConfig {
+    pub fn get_path(&self) -> &String {
+        &self.path
+    }
+
+    pub fn get_level(&self) -> &String {
+        &self.level
+    }
+
+    pub fn get_size(&self) -> u64 {
+        self.size
+    }
+
+    pub fn get_out_kind(&self) -> &Vec<OutKind> {
+        &self.out_kind
+    }
+
+    pub fn get_roll_count(&self) -> u32 {
+        self.roll_count
+    }
+}
+
+/// The [LogConfig] with builder wrapper.
 pub struct LogConfigBuilder(LogConfig);
 
 impl LogConfigBuilder {
@@ -42,10 +171,13 @@ impl LogConfigBuilder {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```edition2018
     /// use simple_log::{LogConfigBuilder, LogConfig};
+    ///
     /// fn main() {
     ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
+    ///     let log_config:LogConfig = builder.build();
+    ///     println!("{:?}",log_config);
     /// }
     /// ```
     ///
@@ -55,16 +187,20 @@ impl LogConfigBuilder {
 
     /// Receive file write path.
     ///
-    /// Simple-log output path when [OutKind] value is `File`.
-    /// When [OutKind] value only is `console`,need ignore this method.
+    /// Simple-log output path when `OutKind` value is `File`.
+    /// When `OutKind` value only is `console`,need ignore this method.
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// use simple_log::LogConfigBuilder;
+    /// ```edition2018
     ///
     /// fn main() {
-    ///  let builder:LogConfigBuilder = LogConfigBuilder::builder().path("/tmp/log/simple_log.log");
+    ///     use simple_log::LogConfigBuilder;
+    ///     use simple_log::LogConfig;
+    ///
+    ///     let builder:LogConfigBuilder = LogConfigBuilder::builder().path("/tmp/log/simple_log.log");
+    ///     let config:LogConfig = builder.build();
+    ///     println!("{:?}",config);
     /// }
     /// ```
     ///
@@ -89,6 +225,11 @@ impl LogConfigBuilder {
         self
     }
 
+    /// Configuration [LogConfigBuilder] with log output with console.
+    ///
+    /// If your application build with `--release`.This method should not be used
+    /// `output_file` method is recommended.
+    /// This is usually used with `debug` or `test` mode.
     pub fn output_console(mut self) -> LogConfigBuilder {
         self.0.out_kind.push(OutKind::Console);
         self
@@ -99,12 +240,31 @@ impl LogConfigBuilder {
         self
     }
 
+    /// Constructs a new `LogConfig` .
+    ///
+    /// # Examples
+    ///
+    /// ```edition2018
+    /// fn main() {
+    ///     use simple_log::LogConfigBuilder;
+    ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
+    ///     let config = LogConfigBuilder::builder()
+    ///         .path("./log/builder_log.log")
+    ///         .size(1 * 100)
+    ///        .roll_count(10)
+    ///        .level("debug")
+    ///        .output_file()
+    ///        .output_console()
+    ///        .build();
+    ///     println!("{:?}",config);
+    /// }
+    /// ```
     pub fn build(self) -> LogConfig {
         self.0
     }
 }
 
-/// The [new] method provide init simple-log instance.
+/// The [new] method provide init simple-log instance with config.
 ///
 /// This method need pass [LogConfig] param. Your can use [LogConfigBuilder] `build` [LogConfig].
 /// Also you can use [serde] with `Deserialize` init `LogConfig`.
@@ -133,9 +293,10 @@ impl LogConfigBuilder {
 /// }
 /// ```
 ///
-pub fn new(log: LogConfig) -> SimpleResult<()> {
-    let config = init_config(log)?;
-    let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
+pub fn new(log_config: LogConfig) -> SimpleResult<()> {
+    let mut log_config = log_config;
+    init_default_log(&mut log_config);
+    init_log_conf(log_config)?;
     Ok(())
 }
 
@@ -158,7 +319,7 @@ pub fn new(log: LogConfig) -> SimpleResult<()> {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```edition2018
 /// #[macro_use]
 /// extern crate log;
 ///
@@ -171,44 +332,70 @@ pub fn new(log: LogConfig) -> SimpleResult<()> {
 /// }
 /// ```
 pub fn quick() -> SimpleResult<()> {
-    let config = init_config(LogConfig::default())?;
-    let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
-    // LOG_CONF.get_or_init(||);
+    let mut config = LogConfig::default();
+    init_default_log(&mut config);
+    init_log_conf(config)?;
     Ok(())
 }
 
-fn init_config(mut log: LogConfig) -> SimpleResult<Config> {
-    init_default_log(&mut log);
+/// Provide init simple-log instance with stdout console on terminal.
+///
+/// Method receive log level one of [log_level] mod.
+pub fn console(level: String) -> SimpleResult<()> {
+    let mut config = LogConfig::default();
+    config.level = level;
+    config.out_kind = vec![OutKind::Console];
+    init_log_conf(config)?;
+    Ok(())
+}
 
-    let mut builder = Config::builder();
+///Provide init simple-log instance with write file.
+///
+/// The param `path` is either an absolute path or lacking a leading `/`, relative to the `cwd` of your [LogConfig].
+/// The param `level` config log level with [log_level].
+/// The param `size` config single file size(MB).
+/// The param `roll_count` config single file size(MB).
+/// The file extension of the pattern is `.gz`,the archive files will be gzip-compressed.
+pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
+    let config = LogConfig {
+        path: path.into(),
+        level: level.into(),
+        size,
+        out_kind: vec![OutKind::File],
+        roll_count,
+    };
+    init_log_conf(config)?;
+    Ok(())
+}
+
+fn build_config(log: &LogConfig) -> SimpleResult<Config> {
+    let mut config_builder = Config::builder();
+    let mut root_builder = Root::builder();
     for kind in &log.out_kind {
-        match *kind {
+        match kind {
             OutKind::File => {
-                builder = builder
-                    .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(&log)?));
+                config_builder = config_builder
+                    .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(log)?));
+                root_builder = root_builder.appender(SIMPLE_LOG_FILE);
             }
             OutKind::Console => {
                 let console = ConsoleAppender::builder()
                     .encoder(Box::new(encoder()))
                     .build();
-                builder = builder
+                config_builder = config_builder
                     .appender(Appender::builder().build(SIMPLE_LOG_CONSOLE, Box::new(console)));
+                root_builder = root_builder.appender(SIMPLE_LOG_CONSOLE);
             }
         }
     }
 
-    let config = builder
-        .build(
-            Root::builder()
-                .appender(SIMPLE_LOG_FILE)
-                .appender(SIMPLE_LOG_CONSOLE)
-                .build(form_log_level(log.level)),
-        )
+    let config = config_builder
+        .build(root_builder.build(log_level::form_log_level(&log.level)))
         .map_err(|e| e.to_string())?;
     Ok(config)
 }
 
-//check log config,and give default value
+/// check log config,and give default value
 fn init_default_log(log: &mut LogConfig) {
     if log.path.trim().is_empty() {
         log.path = "./tmp/simple_log.log".to_string();
@@ -223,7 +410,7 @@ fn init_default_log(log: &mut LogConfig) {
     }
 
     if log.level.is_empty() {
-        log.level = LOG_LEVEL_DEBUG.to_string()
+        log.level = log_level::DEBUG.to_string()
     }
 
     if log.out_kind.is_empty() {
@@ -254,19 +441,45 @@ fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
     Ok(Box::new(logfile))
 }
 
-pub const LOG_LEVEL_TRACE: &str = "trace";
-pub const LOG_LEVEL_DEBUG: &str = "debug";
-pub const LOG_LEVEL_INFO: &str = "info";
-pub const LOG_LEVEL_WARN: &str = "warn";
-pub const LOG_LEVEL_ERROR: &str = "error";
+pub mod log_level {
+    use log::LevelFilter;
 
-fn form_log_level(level: String) -> LevelFilter {
-    match level.to_lowercase().as_str() {
-        LOG_LEVEL_TRACE => LevelFilter::Trace,
-        LOG_LEVEL_DEBUG => LevelFilter::Debug,
-        LOG_LEVEL_INFO => LevelFilter::Info,
-        LOG_LEVEL_WARN => LevelFilter::Warn,
-        LOG_LEVEL_ERROR => LevelFilter::Error,
-        _ => LevelFilter::Debug,
+    pub const TRACE: &str = "trace";
+    pub const DEBUG: &str = "debug";
+    pub const INFO: &str = "info";
+    pub const WARN: &str = "warn";
+    pub const ERROR: &str = "error";
+
+    /// convert log level str to [LevelFilter].
+    ///
+    /// The default log level use [LevelFilter::Debug].
+    ///
+    /// # Examples
+    ///
+    /// ```edition2018
+    ///
+    /// fn main() {
+    ///     use simple_log::log_level::form_log_level;
+    ///     use log::LevelFilter;
+    ///     let level = form_log_level("warn");
+    ///     assert_eq!(level,LevelFilter::Warn);
+    ///
+    ///     let level = form_log_level("error");
+    ///     assert_eq!(level,LevelFilter::Error);
+    ///
+    ///     let level = form_log_level("no");
+    ///     assert_eq!(level,LevelFilter::Debug);
+    /// }
+    /// ```
+    ///
+    pub fn form_log_level(level: &str) -> LevelFilter {
+        match level {
+            TRACE => LevelFilter::Trace,
+            DEBUG => LevelFilter::Debug,
+            INFO => LevelFilter::Info,
+            WARN => LevelFilter::Warn,
+            ERROR => LevelFilter::Error,
+            _ => LevelFilter::Debug,
+        }
     }
 }

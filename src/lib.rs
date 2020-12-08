@@ -43,8 +43,30 @@ pub fn update_log_conf(log_config: LogConfig) -> SimpleResult<LogConfig> {
     Ok(guard.log_config.clone())
 }
 
-/// update simple-log global config [LogConfig] with log level.
+/// update simple-log global config log level.
 ///
+/// # Examples
+///
+/// ```edition2018
+/// fn main() -> Result<(), String> {
+///     use simple_log::{LogConfigBuilder, update_log_level, log_level};
+///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
+///     let config = LogConfigBuilder::builder()
+///         .path("./log/builder_log.log")
+///         .size(1 * 64)
+///        .roll_count(10)
+///        .level("debug")
+///        .output_file()
+///        .output_console()
+///        .build();
+///     simple_log::new(config)?;
+///
+///     //update log level
+///     let config = update_log_level(log_level::DEBUG)?;
+///     assert_eq!("debug",config.get_level());
+///     Ok(())
+/// }
+/// ```
 ///
 pub fn update_log_level<S: Into<String>>(level: S) -> SimpleResult<LogConfig> {
     let log_conf = LOG_CONF.get().unwrap();
@@ -72,6 +94,29 @@ pub struct LogConfig {
     out_kind: Vec<OutKind>,
     roll_count: u32,
 }
+
+impl LogConfig {
+    pub fn get_path(&self) -> &String {
+        &self.path
+    }
+
+    pub fn get_level(&self) -> &String {
+        &self.path
+    }
+
+    pub fn get_size(&self) -> u64 {
+        self.size
+    }
+
+    pub fn get_out_kind(&self) -> &Vec<OutKind> {
+        &self.out_kind
+    }
+
+    pub fn get_roll_count(&self) -> u32 {
+        self.roll_count
+    }
+}
+
 
 /// The [LogConfig] with builder wrapper.
 pub struct LogConfigBuilder(LogConfig);

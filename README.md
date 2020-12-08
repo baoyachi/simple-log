@@ -11,7 +11,7 @@ A simple-log with local file or stdout write by Rust.
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "0.3"
+simple-log = "1.0.0"
 ```
 
 ```rust
@@ -31,7 +31,7 @@ fn main() -> Result<(), String> {
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "0.3"
+simple-log = "1.0.0"
 ```
 ```rust
 #[macro_use]

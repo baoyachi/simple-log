@@ -27,7 +27,7 @@ fn main() -> Result<(), String> {
 }
 ```
 
-## USAGE in project
+## Usage in project
 ```toml
 [dependencies]
 log = "0.4"

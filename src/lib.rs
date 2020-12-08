@@ -1,5 +1,52 @@
 //! simple-log is a very simple configuration log crates.
 //!
+//! # Quick Start
+//!
+//! To get you started quickly, the easiest and quick way to used with demo or test project
+//!
+//! ```no_run
+//! #[macro_use]
+//! extern crate log;
+//!
+//! fn main() -> Result<(), String> {
+//!    simple_log::quick()?;
+//!
+//!    debug!("test builder debug");
+//!    info!("test builder info");
+//!    Ok(())
+//!}
+//! ```
+//!
+//! # Usage in project
+//!
+//! Configuration [LogConfig] in your project.
+//!
+//! ```no_run
+//!#[macro_use]
+//!extern crate log;
+//!
+//!use simple_log::LogConfigBuilder;
+//!
+//!fn main() -> Result<(), String> {
+//!    let config = LogConfigBuilder::builder()
+//!        .path("./log/builder_log.log")
+//!        .size(1 * 100)
+//!        .roll_count(10)
+//!        .level("debug")
+//!        .output_file()
+//!        .output_console()
+//!        .build();
+//!
+//!    simple_log::new(config)?;
+//!    debug!("test builder debug");
+//!    info!("test builder info");
+//!    Ok(())
+//!}
+//! ```
+//!
+//! For the user guide and futher documentation, please read
+//! [The Rust simple doc](https://github.com/baoyachi/simple-log).
+//!
 
 #[macro_use]
 extern crate serde_derive;

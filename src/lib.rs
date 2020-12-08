@@ -50,7 +50,6 @@ pub fn update_log_conf(log_config: LogConfig) -> SimpleResult<LogConfig> {
 /// ```edition2018
 /// fn main() -> Result<(), String> {
 ///     use simple_log::{LogConfigBuilder, update_log_level, log_level};
-///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
 ///     let config = LogConfigBuilder::builder()
 ///         .path("./log/builder_log.log")
 ///         .size(1 * 64)
@@ -101,7 +100,7 @@ impl LogConfig {
     }
 
     pub fn get_level(&self) -> &String {
-        &self.path
+        &self.level
     }
 
     pub fn get_size(&self) -> u64 {
@@ -116,7 +115,6 @@ impl LogConfig {
         self.roll_count
     }
 }
-
 
 /// The [LogConfig] with builder wrapper.
 pub struct LogConfigBuilder(LogConfig);
@@ -142,8 +140,8 @@ impl LogConfigBuilder {
 
     /// Receive file write path.
     ///
-    /// Simple-log output path when [OutKind] value is `File`.
-    /// When [OutKind] value only is `console`,need ignore this method.
+    /// Simple-log output path when `OutKind` value is `File`.
+    /// When `OutKind` value only is `console`,need ignore this method.
     ///
     /// # Examples
     ///
@@ -183,7 +181,7 @@ impl LogConfigBuilder {
     /// Configuration [LogConfigBuilder] with log output with console.
     ///
     /// If your application build with `--release`.This method should not be used
-    /// [output_file] method is recommended.
+    /// `output_file` method is recommended.
     /// This is usually used with `debug` or `test` mode.
     pub fn output_console(mut self) -> LogConfigBuilder {
         self.0.out_kind.push(OutKind::Console);
@@ -226,7 +224,7 @@ impl LogConfigBuilder {
 ///
 /// # Examples
 ///
-/// ```edition2018
+/// ```no_run
 /// #[macro_use]
 /// extern crate log;
 ///

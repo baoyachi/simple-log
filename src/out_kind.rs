@@ -3,7 +3,7 @@ use serde::{de, Deserialize, Deserializer};
 const KIND_FILE: &str = "file";
 const KIND_CONSOLE: &str = "console";
 
-#[derive(Debug, Serialize, PartialEq)]
+#[derive(Debug, Serialize, PartialEq, Clone)]
 pub enum OutKind {
     File,
     Console,

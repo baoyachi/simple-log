@@ -45,7 +45,7 @@
 //! ```
 //!
 //! For the user guide and futher documentation, please read
-//! [The Rust simple doc](https://github.com/baoyachi/simple-log).
+//! [The simple-log document](https://github.com/baoyachi/simple-log).
 //!
 
 #[macro_use]

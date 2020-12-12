@@ -210,8 +210,7 @@ impl LogConfigBuilder {
     /// # Examples
     ///
     /// ```rust
-    ///
-    /// fn main() {
+    /// fn run() {
     ///     use simple_log::{LogConfigBuilder, LogConfig};
     ///
     ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
@@ -232,8 +231,7 @@ impl LogConfigBuilder {
     /// # Examples
     ///
     /// ```edition2018
-    ///
-    /// fn main() {
+    /// fn run() {
     ///     use simple_log::LogConfigBuilder;
     ///     use simple_log::LogConfig;
     ///
@@ -284,7 +282,7 @@ impl LogConfigBuilder {
     /// # Examples
     ///
     /// ```edition2018
-    /// fn main() {
+    /// fn run() {
     ///     use simple_log::LogConfigBuilder;
     ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
     ///     let config = LogConfigBuilder::builder()
@@ -498,7 +496,7 @@ pub mod log_level {
     /// # Examples
     ///
     /// ```edition2018
-    /// fn main() {
+    /// fn run() {
     ///     use simple_log::log_level::form_log_level;
     ///     use log::LevelFilter;
     ///     let level = form_log_level("warn");

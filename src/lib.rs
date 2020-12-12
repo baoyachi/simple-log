@@ -104,7 +104,7 @@ use std::sync::Mutex;
 
 type SimpleResult<T> = std::result::Result<T, String>;
 
-/// Simple-log global config.
+/// simple-log global config.
 struct LogConf {
     log_config: LogConfig,
     handle: log4rs::Handle,
@@ -119,6 +119,48 @@ fn init_log_conf(log_config: LogConfig) -> SimpleResult<()> {
     Ok(())
 }
 
+/// Update simple-log global config [LogConfig].
+///
+/// ```edition2018
+/// #[macro_use]
+/// extern crate log;
+///
+/// use simple_log::LogConfigBuilder;
+///
+/// fn main() -> Result<(), String> {
+///     let old_config = LogConfigBuilder::builder()
+///         .path("./log/builder_log.log")
+///         .size(1 * 100)
+///         .roll_count(10)
+///         .level("debug")
+///         .output_file()
+///         .output_console()
+///         .build();
+///
+///     simple_log::new(old_config.clone())?;
+///     let out = simple_log::get_log_conf()?;
+///     assert_eq!(out, old_config);
+///
+///     debug!("test update_log_conf debug");
+///     info!("test update_log_conf info");
+///
+///     let new_config = LogConfigBuilder::builder()
+///         .path("./log/builder_log.log")
+///         .size(2)
+///         .roll_count(2)
+///         .level("info")
+///         .output_file()
+///         .output_console()
+///         .build();
+///     simple_log::update_log_conf(new_config.clone())?;
+///     let out = simple_log::get_log_conf()?;
+///     assert_eq!(out, new_config);
+///
+///     debug!("test update_log_conf debug");//ignore
+///     info!("test update_log_conf info");//print
+///     Ok(())
+/// }
+///```
 pub fn update_log_conf(log_config: LogConfig) -> SimpleResult<LogConfig> {
     let log_conf = LOG_CONF.get().unwrap();
     let mut guard = log_conf.lock().unwrap();
@@ -161,6 +203,33 @@ pub fn update_log_level<S: Into<String>>(level: S) -> SimpleResult<LogConfig> {
     Ok(guard.log_config.clone())
 }
 
+/// Get simple-log global config [LogConfig]
+///
+/// ```rust
+/// #[macro_use]
+/// extern crate log;
+///
+/// use simple_log::LogConfigBuilder;
+///
+/// fn main() -> Result<(), String> {
+///     let old_config = LogConfigBuilder::builder()
+///         .path("./log/builder_log.log")
+///         .size(1 * 100)
+///         .roll_count(10)
+///         .level("debug")
+///         .output_file()
+///         .output_console()
+///         .build();
+///
+///     simple_log::new(old_config.clone())?;
+///     let out = simple_log::get_log_conf()?;
+///     assert_eq!(out, old_config);
+///
+///     debug!("test get_log_conf debug");
+///     info!("test get_log_conf info");
+///     Ok(())
+/// }
+/// ```
 pub fn get_log_conf() -> SimpleResult<LogConfig> {
     let log_conf = LOG_CONF.get().unwrap();
     let config = log_conf.lock().unwrap().log_config.clone();
@@ -170,7 +239,7 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 pub struct LogConfig {
     path: String,
     level: String,
@@ -225,7 +294,7 @@ impl LogConfigBuilder {
 
     /// Receive file write path.
     ///
-    /// Simple-log output path when `OutKind` value is `File`.
+    /// simple-log output path when `OutKind` value is `File`.
     /// When `OutKind` value only is `console`,need ignore this method.
     ///
     /// # Examples

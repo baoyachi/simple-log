@@ -121,7 +121,7 @@ fn init_log_conf(log_config: LogConfig) -> SimpleResult<()> {
 
 /// Update simple-log global config [LogConfig].
 ///
-/// ```edition2018
+/// ```rust
 /// #[macro_use]
 /// extern crate log;
 ///
@@ -174,7 +174,7 @@ pub fn update_log_conf(log_config: LogConfig) -> SimpleResult<LogConfig> {
 ///
 /// # Examples
 ///
-/// ```edition2018
+/// ```rust
 /// fn main() -> Result<(), String> {
 ///     use simple_log::{LogConfigBuilder, update_log_level, log_level};
 ///     let config = LogConfigBuilder::builder()
@@ -299,7 +299,7 @@ impl LogConfigBuilder {
     ///
     /// # Examples
     ///
-    /// ```edition2018
+    /// ```rust
     /// fn run() {
     ///     use simple_log::LogConfigBuilder;
     ///     use simple_log::LogConfig;
@@ -350,7 +350,7 @@ impl LogConfigBuilder {
     ///
     /// # Examples
     ///
-    /// ```edition2018
+    /// ```rust
     /// fn run() {
     ///     use simple_log::LogConfigBuilder;
     ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
@@ -425,7 +425,7 @@ pub fn new(log_config: LogConfig) -> SimpleResult<()> {
 ///
 /// # Examples
 ///
-/// ```edition2018
+/// ```rust
 /// #[macro_use]
 /// extern crate log;
 ///
@@ -448,7 +448,7 @@ pub fn quick() -> SimpleResult<()> {
 ///
 /// Method receive log level one of [log_level] mod.
 ///
-/// ```edition2018
+/// ```rust
 /// #[macro_use]
 /// extern crate log;
 ///
@@ -478,7 +478,7 @@ pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
 ///
 /// The file extension of the pattern is `.gz`,the archive files will be gzip-compressed.
 ///
-/// ```edition2018
+/// ```rust
 /// #[macro_use]
 /// extern crate log;
 ///
@@ -590,7 +590,7 @@ pub mod log_level {
     ///
     /// # Examples
     ///
-    /// ```edition2018
+    /// ```rust
     /// fn run() {
     ///     use simple_log::log_level::form_log_level;
     ///     use log::LevelFilter;

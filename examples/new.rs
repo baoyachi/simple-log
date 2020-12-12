@@ -2,8 +2,8 @@
 //!
 //! With OutPut
 //! ```bash
-//! 2020-12-12 17:09:05:047820000 [DEBUG] <new:26>:test builder debug
-//! 2020-12-12 17:09:05:048028000 [INFO] <new:27>:test builder info
+//! 2020-12-12 17:09:05:047820000 [DEBUG] <new:26>:test new debug
+//! 2020-12-12 17:09:05:048028000 [INFO] <new:27>:test new info
 //! ```
 
 #[macro_use]
@@ -23,7 +23,7 @@ fn main() -> Result<(), String> {
 
     simple_log::new(config)?;
 
-    debug!("test builder debug");
-    info!("test builder info");
+    debug!("test new debug");
+    info!("test new info");
     Ok(())
 }

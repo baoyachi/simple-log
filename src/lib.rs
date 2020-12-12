@@ -209,10 +209,11 @@ impl LogConfigBuilder {
     ///
     /// # Examples
     ///
-    /// ```edition2018
-    /// use simple_log::{LogConfigBuilder, LogConfig};
+    /// ```rust
     ///
     /// fn main() {
+    ///     use simple_log::{LogConfigBuilder, LogConfig};
+    ///
     ///     let builder:LogConfigBuilder = LogConfigBuilder::builder();
     ///     let log_config:LogConfig = builder.build();
     ///     println!("{:?}",log_config);
@@ -497,7 +498,6 @@ pub mod log_level {
     /// # Examples
     ///
     /// ```edition2018
-    ///
     /// fn main() {
     ///     use simple_log::log_level::form_log_level;
     ///     use log::LevelFilter;

@@ -18,7 +18,7 @@ impl<'de> Deserialize<'de> for OutKind {
         match s.as_str() {
             KIND_FILE => Ok(OutKind::File),
             KIND_CONSOLE => Ok(OutKind::Console),
-            _ => return Err(de::Error::custom(format!("Invalid state '{}'", s))),
+            _ => Err(de::Error::custom(format!("Invalid state '{}'", s))),
         }
     }
 }

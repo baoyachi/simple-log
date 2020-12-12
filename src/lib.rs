@@ -378,6 +378,19 @@ pub fn quick() -> SimpleResult<()> {
 /// Provide init simple-log instance with stdout console on terminal.
 ///
 /// Method receive log level one of [log_level] mod.
+///
+/// ```edition2018
+/// #[macro_use]
+/// extern crate log;
+///
+/// fn main() -> Result<(), String> {
+///     simple_log::console("debug")?;
+///
+///     debug!("test console debug");
+///     info!("test console info");
+///     Ok(())
+/// }
+/// ```
 pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
     let mut config = LogConfig::default();
     config.level = level.into();
@@ -395,6 +408,19 @@ pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
 /// The param `roll_count` config single file size(MB).
 ///
 /// The file extension of the pattern is `.gz`,the archive files will be gzip-compressed.
+///
+/// ```edition2018
+/// #[macro_use]
+/// extern crate log;
+///
+/// fn main() -> Result<(), String> {
+///    simple_log::file("./log/file.log", "debug", 100, 10)?;
+///
+///    debug!("test file debug");
+///    info!("test file info");
+///    Ok(())
+/// }
+/// ```
 pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
     let config = LogConfig {
         path: path.into(),

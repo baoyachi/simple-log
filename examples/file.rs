@@ -10,8 +10,7 @@
 extern crate log;
 
 fn main() -> Result<(), String> {
-
-    simple_log::file("./log/file.log","debug",100,10)?;
+    simple_log::file("./log/file.log", "debug", 100, 10)?;
 
     debug!("test file debug");
     info!("test file info");

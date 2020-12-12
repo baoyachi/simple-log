@@ -1,3 +1,12 @@
+//! `cargo run --example yaml_log`
+//!
+//! With Output
+//! ```bash
+//! 2020-12-12 17:17:03:937206000 [INFO] <yaml_log:30>:info json simple_log
+//! 2020-12-12 17:17:03:937885000 [WARN] <yaml_log:31>:warn json simple_log
+//! 2020-12-12 17:17:03:937970000 [ERROR] <yaml_log:32>:error json simple_log
+//! ```
+
 #[macro_use]
 extern crate log;
 

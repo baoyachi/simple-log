@@ -1,3 +1,12 @@
+//! `cargo run --example toml_log`
+//!
+//! With Output
+//! ```bash
+//! 2020-12-12 17:16:02:340877000 [INFO] <toml_log:37>:info json simple_log
+//! 2020-12-12 17:16:02:341504000 [WARN] <toml_log:38>:warn json simple_log
+//! 2020-12-12 17:16:02:341569000 [ERROR] <toml_log:39>:error json simple_log
+//! ```
+
 #[macro_use]
 extern crate log;
 

@@ -379,9 +379,9 @@ pub fn quick() -> SimpleResult<()> {
 /// Provide init simple-log instance with stdout console on terminal.
 ///
 /// Method receive log level one of [log_level] mod.
-pub fn console(level: String) -> SimpleResult<()> {
+pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
     let mut config = LogConfig::default();
-    config.level = level;
+    config.level = level.into();
     config.out_kind = vec![OutKind::Console];
     init_log_conf(config)?;
     Ok(())

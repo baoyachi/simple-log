@@ -16,7 +16,6 @@ fn main() {
     "#;
     let config: LogConfig = serde_yaml::from_str(config).unwrap();
 
-
     simple_log::new(config).unwrap(); //init log
 
     info!("info json simple_log");

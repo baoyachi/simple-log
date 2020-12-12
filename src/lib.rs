@@ -1,5 +1,13 @@
 //! simple-log is a very simple configuration log crates.
 //!
+//! # simple-log format output
+//!
+//! ```bash
+//! 2020-12-07 15:06:03:260570000 [INFO] <json_log:16>:info json simple_log
+//! 2020-12-07 15:06:03:262106000 [WARN] <json_log:17>:warn json simple_log
+//! 2020-12-07 15:06:03:262174000 [ERROR] <json_log:18>:error json simple_log
+//! ```
+//!
 //! # Quick Start
 //!
 //! To get you started quickly, the easiest and quick way to used with demo or test project
@@ -44,8 +52,38 @@
 //!}
 //! ```
 //!
+//! # Config with json
+//!
+//! ```no_run
+//! #[macro_use]
+//! extern crate log;
+//!
+//! use simple_log::LogConfig;
+//!
+//! fn main() {
+//!     let config = r#"
+//!     {
+//!         "path":"./log/tmp.log",
+//!         "level":"debug",
+//!         "size":10,
+//!         "out_kind":["console","file"],
+//!         "roll_count":10
+//!     }"#;
+//!     let log_config: LogConfig = serde_json::from_str(config).unwrap();
+//!
+//!     simple_log::new(log_config).unwrap();//init log
+//!
+//!     info!("info json simple_log");
+//!     warn!("warn json simple_log");
+//!     error!("error json simple_log");
+//! }
+//! ```
+//!
 //! For the user guide and futher documentation, please read
 //! [The simple-log document](https://github.com/baoyachi/simple-log).
+//!
+//! More than examples can see:
+//! [examples](https://github.com/baoyachi/simple-log/tree/main/examples).
 //!
 
 #[macro_use]

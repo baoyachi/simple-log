@@ -63,7 +63,7 @@ fn main() -> Result<(), String> {
     Ok(())
 }
 ```
-## Config with serde_json
+## Config with json
 
 ```toml
 [dependencies]
@@ -137,3 +137,6 @@ fn main() {
     error!("error json simple_log");
 }
 ```
+
+## examples
+More than examples can see [examples](https://github.com/baoyachi/simple-log/tree/main/examples).

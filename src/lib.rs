@@ -387,12 +387,14 @@ pub fn console(level: String) -> SimpleResult<()> {
     Ok(())
 }
 
-///Provide init simple-log instance with write file.
+/// Provide init simple-log instance with write file.
 ///
 /// The param `path` is either an absolute path or lacking a leading `/`, relative to the `cwd` of your [LogConfig].
+///
 /// The param `level` config log level with [log_level].
 /// The param `size` config single file size(MB).
 /// The param `roll_count` config single file size(MB).
+///
 /// The file extension of the pattern is `.gz`,the archive files will be gzip-compressed.
 pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
     let config = LogConfig {

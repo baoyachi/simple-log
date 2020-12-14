@@ -29,8 +29,8 @@ extern crate log;
 fn main() -> Result<(), String> {
     simple_log::quick()?;
 
-    debug!("test builder debug");
-    info!("test builder info");
+    debug!("test quick debug");
+    info!("test quick info");
     Ok(())
 }
 ```
@@ -132,9 +132,9 @@ fn main() {
 
     simple_log::new(wrap.log_config).unwrap();//init log
 
-    info!("info json simple_log");
-    warn!("warn json simple_log");
-    error!("error json simple_log");
+    info!("info toml simple_log");
+    warn!("warn toml simple_log");
+    error!("error toml simple_log");
 }
 ```
 

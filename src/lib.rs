@@ -19,8 +19,8 @@
 //! fn main() -> Result<(), String> {
 //!    simple_log::quick()?;
 //!
-//!    debug!("test builder debug");
-//!    info!("test builder info");
+//!    debug!("test quick debug");
+//!    info!("test quick info");
 //!    Ok(())
 //!}
 //! ```

@@ -10,9 +10,7 @@
 #[macro_use]
 extern crate log;
 
-#[macro_use]
-extern crate serde_derive;
-
+use serde::Deserialize;
 use simple_log::LogConfig;
 
 #[derive(Deserialize)]

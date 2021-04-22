@@ -86,9 +86,6 @@
 //! [examples](https://github.com/baoyachi/simple-log/tree/main/examples).
 //!
 
-#[macro_use]
-extern crate serde_derive;
-
 mod out_kind;
 
 use crate::out_kind::OutKind;
@@ -100,9 +97,13 @@ use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use once_cell::sync::OnceCell;
+use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 type SimpleResult<T> = std::result::Result<T, String>;
+
+#[cfg(feature = "shadow-rs")]
+pub use shadow_rs::is_debug;
 
 /// simple-log global config.
 struct LogConf {
@@ -461,9 +462,13 @@ pub fn quick() -> SimpleResult<()> {
 /// }
 /// ```
 pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
-    let mut config = LogConfig::default();
-    config.level = level.into();
-    config.out_kind = vec![OutKind::Console];
+    let config = LogConfig {
+        path: "".to_string(),
+        level: level.into(),
+        size: 0,
+        out_kind: vec![OutKind::Console],
+        roll_count: 0,
+    };
     init_log_conf(config)?;
     Ok(())
 }

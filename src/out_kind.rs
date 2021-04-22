@@ -1,4 +1,4 @@
-use serde::{de, Deserialize, Deserializer};
+use serde::{de, Deserialize, Deserializer, Serialize};
 
 const KIND_FILE: &str = "file";
 const KIND_CONSOLE: &str = "console";

@@ -64,21 +64,7 @@ impl<'de> serde::de::Visitor<'de> for KindSerde {
     where
         A: SeqAccess<'de>,
     {
-        let mut val = vec![];
-        for x in seq.next_element().iter() {
-            let s: &String = match x {
-                Some(value) => value,
-                None => {
-                    return Err(Error::invalid_length(0, &self));
-                }
-            };
-            val.push(de_from!(s)?);
-        }
-
-        if val.is_empty() {
-            return Err(de::Error::custom(format!("{}", KIND_EXPECT)));
-        }
-        Ok(val)
+        Deserialize::deserialize(de::value::SeqAccessDeserializer::new(seq))
     }
 }
 

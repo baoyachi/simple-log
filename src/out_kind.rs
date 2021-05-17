@@ -1,4 +1,4 @@
-use serde::de::{Error, SeqAccess};
+use serde::de::{SeqAccess};
 use serde::{de, Deserialize, Deserializer, Serialize};
 
 macro_rules! de_from {
@@ -60,7 +60,7 @@ impl<'de> serde::de::Visitor<'de> for KindSerde {
         Ok(vec![kind])
     }
 
-    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+    fn visit_seq<A>(self, seq: A) -> Result<Self::Value, A::Error>
     where
         A: SeqAccess<'de>,
     {

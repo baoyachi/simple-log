@@ -125,7 +125,7 @@ fn main() {
     path = "./log/tmp.log"
     level = "debug"
     size = 10
-    out_kind = ["console","file"]
+    out_kind = ["console","file"] // also configure only with file: out_kind = "file"  
     roll_count = 10
     "#;
     let wrap: LogConfigWrap = toml::from_str(config).unwrap();

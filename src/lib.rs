@@ -611,7 +611,7 @@ pub mod log_level {
     /// ```
     ///
     pub fn form_log_level(level: &str) -> LevelFilter {
-        match level {
+        match level.to_lowercase().as_str() {
             TRACE => LevelFilter::Trace,
             DEBUG => LevelFilter::Debug,
             INFO => LevelFilter::Info,

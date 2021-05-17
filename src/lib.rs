@@ -66,7 +66,7 @@
 //!         "path":"./log/tmp.log",
 //!         "level":"debug",
 //!         "size":10,
-//!         "out_kind":["console","file"],
+//!         "out_kind":"file",
 //!         "roll_count":10
 //!     }"#;
 //!     let log_config: LogConfig = serde_json::from_str(config).unwrap();
@@ -240,11 +240,14 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
 
+use out_kind::deserialize_out_kind;
+
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 pub struct LogConfig {
     path: String,
     level: String,
     size: u64,
+    #[serde(deserialize_with = "deserialize_out_kind")]
     out_kind: Vec<OutKind>,
     roll_count: u32,
 }

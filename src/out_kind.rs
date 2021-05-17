@@ -1,4 +1,4 @@
-use serde::de::{SeqAccess};
+use serde::de::SeqAccess;
 use serde::{de, Deserialize, Deserializer, Serialize};
 
 macro_rules! de_from {

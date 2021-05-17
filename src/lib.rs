@@ -66,7 +66,7 @@
 //!         "path":"./log/tmp.log",
 //!         "level":"debug",
 //!         "size":10,
-//!         "out_kind":["console","file"],
+//!         "out_kind":"file",
 //!         "roll_count":10
 //!     }"#;
 //!     let log_config: LogConfig = serde_json::from_str(config).unwrap();

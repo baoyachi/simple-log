@@ -63,6 +63,48 @@ fn main() -> Result<(), String> {
     Ok(())
 }
 ```
+
+## Config with toml
+```toml
+[dependencies]
+log = "0.4"
+simple-log = "1.0.0"
+toml = "0.5.7"
+```
+
+```rust
+#[macro_use]
+extern crate log;
+
+#[macro_use]
+extern crate serde_derive;
+
+use simple_log::LogConfig;
+
+#[derive(Deserialize)]
+struct LogConfigWrap {
+    log_config: LogConfig,
+}
+
+fn main() {
+    let config = r#"
+    [log_config]
+    path = "./log/tmp.log"
+    level = "debug"
+    size = 10
+    out_kind = ["console","file"] # also configure only with file: out_kind = "file"  
+    roll_count = 10
+    "#;
+    let wrap: LogConfigWrap = toml::from_str(config).unwrap();
+
+    simple_log::new(wrap.log_config).unwrap();//init log
+
+    info!("info toml simple_log");
+    warn!("warn toml simple_log");
+    error!("error toml simple_log");
+}
+```
+
 ## Config with json
 
 ```toml
@@ -94,47 +136,6 @@ fn main() {
     info!("info json simple_log");
     warn!("warn json simple_log");
     error!("error json simple_log");
-}
-```
-
-## Config with toml 
-```toml
-[dependencies]
-log = "0.4"
-simple-log = "1.0.0"
-toml = "0.5.7"
-```
-
-```rust
-#[macro_use]
-extern crate log;
-
-#[macro_use]
-extern crate serde_derive;
-
-use simple_log::LogConfig;
-
-#[derive(Deserialize)]
-struct LogConfigWrap {
-    log_config: LogConfig,
-}
-
-fn main() {
-    let config = r#"
-    [log_config]
-    path = "./log/tmp.log"
-    level = "debug"
-    size = 10
-    out_kind = ["console","file"] // also configure only with file: out_kind = "file"  
-    roll_count = 10
-    "#;
-    let wrap: LogConfigWrap = toml::from_str(config).unwrap();
-
-    simple_log::new(wrap.log_config).unwrap();//init log
-
-    info!("info toml simple_log");
-    warn!("warn toml simple_log");
-    error!("error toml simple_log");
 }
 ```
 

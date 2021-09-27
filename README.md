@@ -19,7 +19,7 @@ A simple-log with local file or stdout write by Rust.
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "1.0.0"
+simple-log = "1.1.0"
 ```
 
 ```rust
@@ -39,7 +39,7 @@ fn main() -> Result<(), String> {
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "1.0.0"
+simple-log = "1.1.0"
 ```
 ```rust
 #[macro_use]
@@ -52,6 +52,7 @@ fn main() -> Result<(), String> {
         .path("./log/builder_log.log")
         .size(1 * 100)
         .roll_count(10)
+        .time_format("%Y-%m-%d %H:%M:%S.%f") //E.g:%H:%M:%S.%f
         .level("debug")
         .output_file()
         .output_console()
@@ -68,7 +69,7 @@ fn main() -> Result<(), String> {
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "1.0.0"
+simple-log = "1.1.0"
 toml = "0.5.7"
 ```
 
@@ -94,6 +95,7 @@ fn main() {
     size = 10
     out_kind = ["console","file"] # also configure only with file: out_kind = "file"  
     roll_count = 10
+    time_format = "%H:%M:%S.%f"
     "#;
     let wrap: LogConfigWrap = toml::from_str(config).unwrap();
 
@@ -110,7 +112,7 @@ fn main() {
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "1.0.0"
+simple-log = "1.1.0"
 serde_json = "1"
 ```
 
@@ -127,7 +129,8 @@ fn main() {
         "level":"debug",
         "size":10,
         "out_kind":["console","file"],
-        "roll_count":10
+        "roll_count":10,
+        "time_format":"%H:%M:%S.%f"
     }"#;
     let log_config: LogConfig = serde_json::from_str(config).unwrap();
 

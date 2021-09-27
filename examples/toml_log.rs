@@ -26,6 +26,7 @@ fn main() {
     size = 10
     out_kind = ["console","file"]
     roll_count = 10
+    time_format = "%H:%M:%S.%f"
     "#;
     let wrap: LogConfigWrap = toml::from_str(config).unwrap();
 

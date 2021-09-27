@@ -97,13 +97,19 @@ use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use once_cell::sync::OnceCell;
+use out_kind::deserialize_out_kind;
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
-type SimpleResult<T> = std::result::Result<T, String>;
-
 #[cfg(feature = "shadow-rs")]
 pub use shadow_rs::is_debug;
+
+pub type SimpleResult<T> = std::result::Result<T, String>;
+
+const SIMPLE_LOG_FILE: &str = "simple_log_file";
+const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
+
+const DEFAULT_DATE_TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S.%f";
 
 /// simple-log global config.
 struct LogConf {
@@ -237,19 +243,15 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
     Ok(config)
 }
 
-const SIMPLE_LOG_FILE: &str = "simple_log_file";
-const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
-
-use out_kind::deserialize_out_kind;
-
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 pub struct LogConfig {
-    path: String,
-    level: String,
-    size: u64,
+    pub path: String,
+    pub level: String,
+    pub size: u64,
     #[serde(deserialize_with = "deserialize_out_kind")]
-    out_kind: Vec<OutKind>,
-    roll_count: u32,
+    pub out_kind: Vec<OutKind>,
+    pub roll_count: u32,
+    pub time_format: Option<String>,
 }
 
 impl LogConfig {
@@ -271,6 +273,10 @@ impl LogConfig {
 
     pub fn get_roll_count(&self) -> u32 {
         self.roll_count
+    }
+
+    pub fn get_time_format(&self) -> Option<&String> {
+        self.time_format.as_ref()
     }
 }
 
@@ -347,6 +353,11 @@ impl LogConfigBuilder {
 
     pub fn roll_count(mut self, roll_count: u32) -> LogConfigBuilder {
         self.0.roll_count = roll_count;
+        self
+    }
+
+    pub fn time_format<S: Into<String>>(mut self, time_format: S) -> LogConfigBuilder {
+        self.0.time_format = Some(time_format.into());
         self
     }
 
@@ -471,6 +482,7 @@ pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
         size: 0,
         out_kind: vec![OutKind::Console],
         roll_count: 0,
+        time_format: Some(DEFAULT_DATE_TIME_FORMAT.to_string()),
     };
     init_log_conf(config)?;
     Ok(())
@@ -505,6 +517,7 @@ pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> S
         size,
         out_kind: vec![OutKind::File],
         roll_count,
+        time_format: Some(DEFAULT_DATE_TIME_FORMAT.to_string()),
     };
     init_log_conf(config)?;
     Ok(())
@@ -522,7 +535,7 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
             }
             OutKind::Console => {
                 let console = ConsoleAppender::builder()
-                    .encoder(Box::new(encoder()))
+                    .encoder(Box::new(encoder(log.time_format.as_ref())))
                     .build();
                 config_builder = config_builder
                     .appender(Appender::builder().build(SIMPLE_LOG_CONSOLE, Box::new(console)));
@@ -561,8 +574,15 @@ fn init_default_log(log: &mut LogConfig) {
     }
 }
 
-fn encoder() -> PatternEncoder {
-    PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S:%f)} [{l}] <{M}:{L}>:{m}\n")
+fn encoder(time_format: Option<&String>) -> PatternEncoder {
+    let time_format = if let Some(format) = time_format {
+        format.to_string()
+    } else {
+        DEFAULT_DATE_TIME_FORMAT.to_string()
+    };
+    let mut pattern = format!("{{d({})}} ", time_format);
+    pattern = pattern + "[{l}] <{M}:{L}>:{m}\n";
+    PatternEncoder::new(pattern.as_str())
 }
 
 fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
@@ -576,7 +596,7 @@ fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
     let policy = CompoundPolicy::new(Box::new(trigger), Box::new(roll));
 
     let logfile = RollingFileAppender::builder()
-        .encoder(Box::new(encoder()))
+        .encoder(Box::new(encoder(log.time_format.as_ref())))
         .build(log.path.clone(), Box::new(policy))
         .map_err(|e| e.to_string())?;
 

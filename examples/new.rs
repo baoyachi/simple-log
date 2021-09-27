@@ -17,6 +17,7 @@ fn main() -> Result<(), String> {
         .size(1 * 100)
         .roll_count(10)
         .level("debug")
+        .time_format("%Y-%m-%d %H:%M:%S.%f")
         .output_file()
         .output_console()
         .build();

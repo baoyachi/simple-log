@@ -19,7 +19,8 @@ fn main() {
         "level":"debug",
         "size":10,
         "out_kind":"console",
-        "roll_count":10
+        "roll_count":10,
+        "time_format":"%H:%M:%S.%f"
     }"#;
     let log_config: LogConfig = serde_json::from_str(config).unwrap();
 

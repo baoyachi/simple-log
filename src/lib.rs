@@ -16,12 +16,11 @@
 //! #[macro_use]
 //! extern crate log;
 //!
-//! fn main() -> Result<(), String> {
-//!    simple_log::quick()?;
+//! fn main() {
+//!    simple_log::quick!();
 //!
 //!    debug!("test quick debug");
 //!    info!("test quick info");
-//!    Ok(())
 //!}
 //! ```
 //!
@@ -449,16 +448,20 @@ pub fn new(log_config: LogConfig) -> SimpleResult<()> {
 /// #[macro_use]
 /// extern crate log;
 ///
-/// fn main() -> Result<(), String> {
-///     simple_log::quick()?;
+/// fn main() {
+///     simple_log::quick!("info");
 ///
 ///     debug!("test builder debug");
 ///     info!("test builder info");
-///     Ok(())
 /// }
 /// ```
 pub fn quick() -> SimpleResult<()> {
+    quick_log_level(log_level::DEBUG)
+}
+
+pub fn quick_log_level<S: Into<String>>(log_level: S) -> SimpleResult<()> {
     let mut config = LogConfig::default();
+    config.level = log_level.into();
     init_default_log(&mut config);
     init_log_conf(config)?;
     Ok(())
@@ -639,13 +642,34 @@ pub mod log_level {
     /// ```
     ///
     pub fn form_log_level(level: &str) -> LevelFilter {
+        validate_log_level(level).unwrap_or(LevelFilter::Debug)
+    }
+
+    pub fn validate_log_level(level: &str) -> Result<LevelFilter, String> {
         match level.to_lowercase().as_str() {
-            TRACE => LevelFilter::Trace,
-            DEBUG => LevelFilter::Debug,
-            INFO => LevelFilter::Info,
-            WARN => LevelFilter::Warn,
-            ERROR => LevelFilter::Error,
-            _ => LevelFilter::Debug,
+            TRACE => Ok(LevelFilter::Trace),
+            DEBUG => Ok(LevelFilter::Debug),
+            INFO => Ok(LevelFilter::Info),
+            WARN => Ok(LevelFilter::Warn),
+            ERROR => Ok(LevelFilter::Error),
+            _ => {
+                let log_levels = format!("{},{},{},{},{}", TRACE, DEBUG, INFO, WARN, ERROR);
+                Err(format!(
+                    "unknown log_level:{},one of:[{}]",
+                    level, log_levels
+                ))
+            }
         }
     }
+}
+
+#[macro_export]
+macro_rules! quick {
+    () => {
+        $crate::quick_log_level($crate::log_level::DEBUG).unwrap()
+    };
+    ($log_level:expr) => {{
+        $crate::log_level::validate_log_level($log_level).unwrap();
+        $crate::quick_log_level($log_level).unwrap()
+    }};
 }

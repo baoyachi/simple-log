@@ -8,10 +8,9 @@
 #[macro_use]
 extern crate log;
 
-fn main() -> Result<(), String> {
-    simple_log::quick()?;
+fn main() {
+    simple_log::quick!();
 
     debug!("test quick debug");
     info!("test quick info");
-    Ok(())
 }

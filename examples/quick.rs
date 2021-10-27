@@ -9,7 +9,29 @@
 extern crate log;
 
 fn main() {
+    // quick_empty()
+
+    // quick_level()
+
+    quick_level_path()
+}
+
+fn quick_empty() {
     simple_log::quick!();
+
+    debug!("test quick debug");
+    info!("test quick info");
+}
+
+fn quick_level() {
+    simple_log::quick!("info");
+
+    debug!("test quick debug");
+    info!("test quick info");
+}
+
+fn quick_level_path() {
+    simple_log::quick!("info", "./log/tmp.log");
 
     debug!("test quick debug");
     info!("test quick info");

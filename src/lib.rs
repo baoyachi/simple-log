@@ -456,14 +456,17 @@ pub fn new(log_config: LogConfig) -> SimpleResult<()> {
 /// }
 /// ```
 pub fn quick() -> SimpleResult<()> {
-    quick_log_level(log_level::DEBUG)
+    quick_log_level(log_level::DEBUG, None)
 }
 
-pub fn quick_log_level<S: Into<String>>(log_level: S) -> SimpleResult<()> {
-    let level = log_level.into();
+pub fn quick_log_level<S: Into<String>>(level: S, path: Option<S>) -> SimpleResult<()> {
+    let level = level.into();
     log_level::validate_log_level(&level)?;
-    let mut config = LogConfig::default();
-    config.level = level;
+    let mut config = LogConfig {
+        path: path.map(|x| x.into()).unwrap_or("".into()),
+        level,
+        ..Default::default()
+    };
     init_default_log(&mut config);
     init_log_conf(config)?;
     Ok(())
@@ -668,9 +671,12 @@ pub mod log_level {
 #[macro_export]
 macro_rules! quick {
     () => {
-        $crate::quick_log_level($crate::log_level::DEBUG).unwrap()
+        $crate::quick_log_level($crate::log_level::DEBUG, None).unwrap()
     };
-    ($log_level:expr) => {{
-        $crate::quick_log_level($log_level).unwrap()
+    ($level:expr) => {{
+        $crate::quick_log_level($level, None).unwrap()
+    }};
+    ($level:expr,$path:expr) => {{
+        $crate::quick_log_level($level, Some($path)).unwrap()
     }};
 }

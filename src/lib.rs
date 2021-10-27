@@ -548,7 +548,7 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
             }
             OutKind::Console => {
                 let console = ConsoleAppender::builder()
-                    .encoder(Box::new(encoder(log.time_format.as_ref())))
+                    .encoder(Box::new(encoder(log.time_format.as_ref(), true)))
                     .build();
                 config_builder = config_builder
                     .appender(Appender::builder().build(SIMPLE_LOG_CONSOLE, Box::new(console)));
@@ -587,14 +587,20 @@ fn init_default_log(log: &mut LogConfig) {
     }
 }
 
-fn encoder(time_format: Option<&String>) -> PatternEncoder {
+fn encoder(time_format: Option<&String>, color: bool) -> PatternEncoder {
     let time_format = if let Some(format) = time_format {
         format.to_string()
     } else {
         DEFAULT_DATE_TIME_FORMAT.to_string()
     };
-    let mut pattern = format!("{{d({})}} ", time_format);
-    pattern += "[{l}] <{M}:{L}>:{m}\n";
+
+    let color_level = match color {
+        true => "h({l})",
+        false => "l",
+    };
+
+    let mut pattern = format!("{{d({})}} [{{{}}}] ", time_format, color_level);
+    pattern += "<{M}:{L}>:{m}\n";
     PatternEncoder::new(pattern.as_str())
 }
 
@@ -609,7 +615,7 @@ fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
     let policy = CompoundPolicy::new(Box::new(trigger), Box::new(roll));
 
     let logfile = RollingFileAppender::builder()
-        .encoder(Box::new(encoder(log.time_format.as_ref())))
+        .encoder(Box::new(encoder(log.time_format.as_ref(), false)))
         .build(log.path.clone(), Box::new(policy))
         .map_err(|e| e.to_string())?;
 

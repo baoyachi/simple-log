@@ -16,6 +16,7 @@ fn main() {
     quick_level_path()
 }
 
+#[allow(dead_code)]
 fn quick_empty() {
     simple_log::quick!();
 
@@ -23,6 +24,7 @@ fn quick_empty() {
     info!("test quick info");
 }
 
+#[allow(dead_code)]
 fn quick_level() {
     simple_log::quick!("info");
 

@@ -19,7 +19,7 @@ A simple-log with local file or stdout write by Rust.
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "1.1.0"
+simple-log = "1.3.1"
 ```
 
 ```rust
@@ -39,7 +39,7 @@ fn main() {
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "1.1.0"
+simple-log = "1.3.1"
 ```
 ```rust
 #[macro_use]
@@ -69,7 +69,7 @@ fn main() -> Result<(), String> {
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "1.1.0"
+simple-log = "1.3.1"
 toml = "0.5.7"
 ```
 
@@ -112,7 +112,7 @@ fn main() {
 ```toml
 [dependencies]
 log = "0.4"
-simple-log = "1.1.0"
+simple-log = "1.3.1"
 serde_json = "1"
 ```
 

@@ -28,7 +28,8 @@ extern crate log;
 
 fn main() {
     simple_log::quick!("info"); // also use empty args: simple_log::quick!();
-
+    // simple_log::quick!(); //use debug log_level
+    
     debug!("test quick debug");
     info!("test quick info");
 }

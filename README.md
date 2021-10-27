@@ -27,7 +27,7 @@ simple-log = "1.1.0"
 extern crate log;
 
 fn main() {
-    simple_log::quick!("info"); // also use: simple_log::quick!();
+    simple_log::quick!("info"); // also use empty args: simple_log::quick!();
 
     debug!("test quick debug");
     info!("test quick info");

@@ -1,9 +1,9 @@
 //! `cargo run --example json_log_out_kind`
 //! With OutPut
 //! ```bash
-//! 2020-12-12 17:12:55:665529000 [INFO] <json_log:29>:info json simple_log
-//! 2020-12-12 17:12:55:666172000 [WARN] <json_log:30>:warn json simple_log
-//! 2020-12-12 17:12:55:666256000 [ERROR] <json_log:31>:error json simple_log
+//! 2020-12-12 17:12:55.665529000 [INFO] <json_log:29>:info json simple_log
+//! 2020-12-12 17:12:55.666172000 [WARN] <json_log:30>:warn json simple_log
+//! 2020-12-12 17:12:55.666256000 [ERROR] <json_log:31>:error json simple_log
 //! ```
 //!
 

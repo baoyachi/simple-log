@@ -2,9 +2,9 @@
 //!
 //! With OutPut
 //! ```bash
-//! 2020-12-12 17:51:34:624199000 [DEBUG] <get_log_conf:28>:test update_log_conf debug
-//! 2020-12-12 17:51:34:624294000 [INFO] <get_log_conf:29>:test update_log_conf info
-//! 2020-12-12 17:54:15:053281000 [INFO] <update_log_conf:41>:test update_log_conf info
+//! 2020-12-12 17:51:34.624199000 [DEBUG] <get_log_conf:28>:test update_log_conf debug
+//! 2020-12-12 17:51:34.624294000 [INFO] <get_log_conf:29>:test update_log_conf info
+//! 2020-12-12 17:54:15.053281000 [INFO] <update_log_conf:41>:test update_log_conf info
 //! ```
 
 #[macro_use]

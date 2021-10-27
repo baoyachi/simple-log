@@ -1,8 +1,8 @@
 //! `cargo run --example quick`
 //! With OutPut
 //! ```bash
-//! 2020-12-12 17:14:19:558272000 [DEBUG] <quick:14>:test quick debug
-//! 2020-12-12 17:14:19:559048000 [INFO] <quick:15>:test quick info
+//! 2020-12-12 17:14:19.558272000 [DEBUG] <quick:14>:test quick debug
+//! 2020-12-12 17:14:19.559048000 [INFO] <quick:15>:test quick info
 //! ```
 
 #[macro_use]

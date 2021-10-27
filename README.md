@@ -9,9 +9,9 @@ A simple-log with local file or stdout write by Rust.
 
 ## simple-log format output    
 ```
-2020-12-07 15:06:03:260570000 [INFO] <json_log:16>:info json simple_log
-2020-12-07 15:06:03:262106000 [WARN] <json_log:17>:warn json simple_log
-2020-12-07 15:06:03:262174000 [ERROR] <json_log:18>:error json simple_log
+2020-12-07 15:06:03.260570000 [INFO] <json_log:16>:info json simple_log
+2020-12-07 15:06:03.262106000 [WARN] <json_log:17>:warn json simple_log
+2020-12-07 15:06:03.262174000 [ERROR] <json_log:18>:error json simple_log
 ```
 
 

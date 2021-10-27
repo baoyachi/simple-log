@@ -2,8 +2,8 @@
 //!
 //! With OutPut
 //! ```bash
-//! 2020-12-12 17:09:05:047820000 [DEBUG] <new:26>:test new debug
-//! 2020-12-12 17:09:05:048028000 [INFO] <new:27>:test new info
+//! 2020-12-12 17:09:05.047820000 [DEBUG] <new:26>:test new debug
+//! 2020-12-12 17:09:05.048028000 [INFO] <new:27>:test new info
 //! ```
 
 #[macro_use]

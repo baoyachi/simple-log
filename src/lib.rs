@@ -456,7 +456,7 @@ pub fn new(log_config: LogConfig) -> SimpleResult<()> {
 /// }
 /// ```
 pub fn quick() -> SimpleResult<()> {
-    quick_log_level("debug")
+    quick_log_level(log_level::DEBUG)
 }
 
 pub fn quick_log_level<S: Into<String>>(log_level: S) -> SimpleResult<()> {

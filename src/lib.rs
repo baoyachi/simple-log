@@ -463,7 +463,7 @@ pub fn quick_log_level<S: Into<String>>(level: S, path: Option<S>) -> SimpleResu
     let level = level.into();
     log_level::validate_log_level(&level)?;
     let mut config = LogConfig {
-        path: path.map(|x| x.into()).unwrap_or("".into()),
+        path: path.map(|x| x.into()).unwrap_or_else(|| "".into()),
         level,
         ..Default::default()
     };
@@ -594,7 +594,7 @@ fn encoder(time_format: Option<&String>) -> PatternEncoder {
         DEFAULT_DATE_TIME_FORMAT.to_string()
     };
     let mut pattern = format!("{{d({})}} ", time_format);
-    pattern = pattern + "[{l}] <{M}:{L}>:{m}\n";
+    pattern += "[{l}] <{M}:{L}>:{m}\n";
     PatternEncoder::new(pattern.as_str())
 }
 

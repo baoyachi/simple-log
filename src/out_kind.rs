@@ -3,7 +3,7 @@ use serde::{de, Deserialize, Deserializer, Serialize};
 
 macro_rules! de_from {
     ($err:expr) => {
-        KindSerde::deserialize($err).map_err(|x| de::Error::custom(x))
+        KindSerde::deserialize($err).map_err(de::Error::custom)
     };
 }
 

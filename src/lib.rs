@@ -100,8 +100,7 @@ use out_kind::deserialize_out_kind;
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
-#[cfg(feature = "shadow-rs")]
-pub use shadow_rs::is_debug;
+pub use is_debug::{is_debug, is_release};
 
 pub type SimpleResult<T> = std::result::Result<T, String>;
 

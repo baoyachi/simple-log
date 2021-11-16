@@ -246,7 +246,7 @@ pub struct LogConfig {
     pub path: String,
     pub level: String,
     pub size: u64,
-    #[serde(deserialize_with = "deserialize_out_kind")]
+    #[serde(deserialize_with = "deserialize_out_kind", default)]
     pub out_kind: Vec<OutKind>,
     pub roll_count: u32,
     pub time_format: Option<String>,

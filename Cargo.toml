@@ -1,6 +1,6 @@
 [package]
 name = "simple-log"
-version = "1.3.2"
+version = "1.3.3"
 authors = ["baoyachi <liaoymxsdl@gmail.com>"]
 description = "A simple log"
 edition = "2018"

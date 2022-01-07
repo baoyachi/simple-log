@@ -1,3 +1,4 @@
+use core::fmt;
 use serde::de::SeqAccess;
 use serde::{de, Deserialize, Deserializer, Serialize};
 
@@ -48,7 +49,7 @@ impl KindSerde {
 impl<'de> serde::de::Visitor<'de> for KindSerde {
     type Value = Vec<OutKind>;
 
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str(KIND_EXPECT)
     }
 

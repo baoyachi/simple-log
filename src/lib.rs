@@ -105,7 +105,7 @@ use std::sync::Mutex;
 
 pub use is_debug::{is_debug, is_release};
 
-pub type SimpleResult<T> = std::result::Result<T, String>;
+pub type SimpleResult<T> = Result<T, String>;
 
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";

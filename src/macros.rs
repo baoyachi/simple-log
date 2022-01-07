@@ -65,4 +65,3 @@ macro_rules! quick {
         $crate::quick_log_level($level, Some($path)).unwrap()
     }};
 }
-

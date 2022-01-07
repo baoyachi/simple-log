@@ -8,7 +8,7 @@
 //! ```
 
 #[macro_use]
-extern crate log;
+extern crate simple_log;
 
 use simple_log::LogConfig;
 

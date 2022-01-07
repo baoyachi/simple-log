@@ -7,7 +7,7 @@
 //! ```
 
 #[macro_use]
-extern crate log;
+extern crate simple_log;
 
 fn main() -> Result<(), String> {
     simple_log::file("./log/file.log", "debug", 100, 10)?;

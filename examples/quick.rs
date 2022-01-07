@@ -6,7 +6,7 @@
 //! ```
 
 #[macro_use]
-extern crate log;
+extern crate simple_log;
 
 fn main() {
     // quick_empty()

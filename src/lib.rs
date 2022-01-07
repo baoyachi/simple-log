@@ -14,7 +14,7 @@
 //!
 //! ```no_run
 //! #[macro_use]
-//! extern crate log;
+//! extern crate simple_log;
 //!
 //! fn main() {
 //!    simple_log::quick!();
@@ -30,7 +30,7 @@
 //!
 //! ```no_run
 //!#[macro_use]
-//!extern crate log;
+//!extern crate simple_log;
 //!
 //!use simple_log::LogConfigBuilder;
 //!
@@ -55,7 +55,7 @@
 //!
 //! ```no_run
 //! #[macro_use]
-//! extern crate log;
+//! extern crate simple_log;
 //!
 //! use simple_log::LogConfig;
 //!
@@ -84,7 +84,10 @@
 //! More than examples can see:
 //! [examples](https://github.com/baoyachi/simple-log/tree/main/examples).
 //!
+pub extern crate log;
 
+#[macro_use]
+pub mod macros;
 mod out_kind;
 
 use crate::out_kind::OutKind;
@@ -128,7 +131,7 @@ fn init_log_conf(log_config: LogConfig) -> SimpleResult<()> {
 ///
 /// ```rust
 /// #[macro_use]
-/// extern crate log;
+/// extern crate simple_log;
 ///
 /// use simple_log::LogConfigBuilder;
 ///
@@ -212,7 +215,7 @@ pub fn update_log_level<S: Into<String>>(level: S) -> SimpleResult<LogConfig> {
 ///
 /// ```rust
 /// #[macro_use]
-/// extern crate log;
+/// extern crate simple_log;
 ///
 /// use simple_log::LogConfigBuilder;
 ///
@@ -397,7 +400,7 @@ impl LogConfigBuilder {
 ///
 /// ```no_run
 /// #[macro_use]
-/// extern crate log;
+/// extern crate simple_log;
 ///
 /// use simple_log::LogConfigBuilder;
 ///
@@ -445,7 +448,7 @@ pub fn new(log_config: LogConfig) -> SimpleResult<()> {
 ///
 /// ```rust
 /// #[macro_use]
-/// extern crate log;
+/// extern crate simple_log;
 ///
 /// fn main() {
 ///     simple_log::quick!("info");
@@ -477,7 +480,7 @@ pub fn quick_log_level<S: Into<String>>(level: S, path: Option<S>) -> SimpleResu
 ///
 /// ```rust
 /// #[macro_use]
-/// extern crate log;
+/// extern crate simple_log;
 ///
 /// fn main() -> Result<(), String> {
 ///     simple_log::console("debug")?;
@@ -512,7 +515,7 @@ pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
 ///
 /// ```rust
 /// #[macro_use]
-/// extern crate log;
+/// extern crate simple_log;
 ///
 /// fn main() -> Result<(), String> {
 ///    simple_log::file("./log/file.log", "debug", 100, 10)?;
@@ -671,17 +674,4 @@ pub mod log_level {
             }
         }
     }
-}
-
-#[macro_export]
-macro_rules! quick {
-    () => {
-        $crate::quick_log_level($crate::log_level::DEBUG, None).unwrap()
-    };
-    ($level:expr) => {{
-        $crate::quick_log_level($level, None).unwrap()
-    }};
-    ($level:expr,$path:expr) => {{
-        $crate::quick_log_level($level, Some($path)).unwrap()
-    }};
 }

@@ -18,13 +18,12 @@ A simple-log with local file or stdout write by Rust.
 ## Quick Use
 ```toml
 [dependencies]
-log = "0.4"
-simple-log = "1.3.2"
+simple-log = "1.4.0"
 ```
 
 ```rust
 #[macro_use]
-extern crate log;
+extern crate simple_log;
 
 fn main() {
     simple_log::quick!("info"); // also use empty args: simple_log::quick!();
@@ -38,12 +37,11 @@ fn main() {
 ## Usage in project
 ```toml
 [dependencies]
-log = "0.4"
-simple-log = "1.3.2"
+simple-log = "1.4.0"
 ```
 ```rust
 #[macro_use]
-extern crate log;
+extern crate simple_log;
 
 use simple_log::LogConfigBuilder;
 
@@ -68,14 +66,13 @@ fn main() -> Result<(), String> {
 ## Config with toml
 ```toml
 [dependencies]
-log = "0.4"
-simple-log = "1.3.2"
+simple-log = "1.4.0"
 toml = "0.5.7"
 ```
 
 ```rust
 #[macro_use]
-extern crate log;
+extern crate simple_log;
 
 #[macro_use]
 extern crate serde_derive;
@@ -111,14 +108,13 @@ fn main() {
 
 ```toml
 [dependencies]
-log = "0.4"
-simple-log = "1.3.2"
+simple-log = "1.4.0"
 serde_json = "1"
 ```
 
 ```rust
 #[macro_use]
-extern crate log;
+extern crate simple_log;
 
 use simple_log::LogConfig;
 

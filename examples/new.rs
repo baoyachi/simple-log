@@ -14,7 +14,7 @@ use simple_log::LogConfigBuilder;
 fn main() -> Result<(), String> {
     let config = LogConfigBuilder::builder()
         .path("./log/builder_log.log")
-        .size(1 * 100)
+        .size(100)
         .roll_count(10)
         .level("debug")
         .time_format("%Y-%m-%d %H:%M:%S.%f")

@@ -15,7 +15,7 @@ use simple_log::LogConfigBuilder;
 fn main() -> Result<(), String> {
     let old_config = LogConfigBuilder::builder()
         .path("./log/builder_log.log")
-        .size(1 * 100)
+        .size(100)
         .roll_count(10)
         .level("debug")
         .output_file()

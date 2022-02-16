@@ -575,7 +575,7 @@ fn init_default_log(log: &mut LogConfig) {
             .map(|(_, v)| v.to_case(Case::Snake))
             .collect::<Vec<_>>()
             .pop()
-            .unwrap_or("simple_log".to_string());
+            .unwrap_or_else(|| "simple_log".to_string());
 
         log.path = format!("./tmp/{}.log", file_name);
     }

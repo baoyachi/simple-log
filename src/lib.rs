@@ -568,15 +568,15 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
 
 /// check log config,and give default value
 fn init_default_log(log: &mut LogConfig) {
-    let file_name = std::env::vars()
-        .into_iter()
-        .filter(|(k, _)| k == "CARGO_PKG_NAME")
-        .map(|(_, v)| v.to_case(Case::Snake))
-        .collect::<Vec<_>>()
-        .pop()
-        .unwrap_or("simple_log".to_string());
-
     if log.path.trim().is_empty() {
+        let file_name = std::env::vars()
+            .into_iter()
+            .filter(|(k, _)| k == "CARGO_PKG_NAME")
+            .map(|(_, v)| v.to_case(Case::Snake))
+            .collect::<Vec<_>>()
+            .pop()
+            .unwrap_or("simple_log".to_string());
+
         log.path = format!("./tmp/{}.log", file_name);
     }
 

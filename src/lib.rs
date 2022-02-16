@@ -91,6 +91,7 @@ pub mod macros;
 mod out_kind;
 
 use crate::out_kind::OutKind;
+use convert_case::{Case, Casing};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
@@ -567,8 +568,16 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
 
 /// check log config,and give default value
 fn init_default_log(log: &mut LogConfig) {
+    let file_name = std::env::vars()
+        .into_iter()
+        .filter(|(k, _)| k == "CARGO_PKG_NAME")
+        .map(|(_, v)| v.to_case(Case::Snake))
+        .collect::<Vec<_>>()
+        .pop()
+        .unwrap_or("simple_log".to_string());
+
     if log.path.trim().is_empty() {
-        log.path = "./tmp/simple_log.log".to_string();
+        log.path = format!("./tmp/{}.log", file_name);
     }
 
     if log.size == 0 {

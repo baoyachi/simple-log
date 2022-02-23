@@ -18,7 +18,7 @@ A simple-log with local file or stdout write by Rust.
 ## Quick Use
 ```toml
 [dependencies]
-simple-log = "1.5.0"
+simple-log = "1.5.1"
 ```
 
 ```rust
@@ -37,7 +37,7 @@ fn main() {
 ## Usage in project
 ```toml
 [dependencies]
-simple-log = "1.5.0"
+simple-log = "1.5.1"
 ```
 ```rust
 #[macro_use]
@@ -66,7 +66,7 @@ fn main() -> Result<(), String> {
 ## Config with toml
 ```toml
 [dependencies]
-simple-log = "1.5.0"
+simple-log = "1.5.1"
 toml = "0.5.7"
 ```
 
@@ -108,7 +108,7 @@ fn main() {
 
 ```toml
 [dependencies]
-simple-log = "1.5.0"
+simple-log = "1.5.1"
 serde_json = "1"
 ```
 

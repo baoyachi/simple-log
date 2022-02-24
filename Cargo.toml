@@ -1,8 +1,8 @@
 [package]
 name = "simple-log"
-version = "1.5.0"
+version = "1.5.1"
 authors = ["baoyachi <liaoymxsdl@gmail.com>"]
-description = "A simple log"
+description = "A simple log. It's really simple use"
 edition = "2018"
 keywords = ["log", "simple-log", "logger", "log4j", "log4rs"]
 readme = "README.md"

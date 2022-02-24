@@ -609,9 +609,8 @@ fn encoder(time_format: Option<&String>, color: bool) -> PatternEncoder {
         true => "h({l})",
         false => "l",
     };
-
     let mut pattern = format!("{{d({})}} [{{{}}}] ", time_format, color_level);
-    pattern += "<{M}:{L}>:{m}\n";
+    pattern += "<{M}:{L}>:{m}{n}";
     PatternEncoder::new(pattern.as_str())
 }
 

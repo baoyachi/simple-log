@@ -15,7 +15,7 @@ license = "MIT AND Apache-2.0"
 
 [dependencies]
 log = "0.4.11"
-log4rs = { version = "0.13.0", default-features = false, features = ["all_components", "humantime", "serde", "serde-value", "yaml_format"] }
+log4rs = { version = "0.13.0", default-features = false, features = ["all_components", "humantime", "serde", "serde-value", "yaml_format", "gzip"] }
 once_cell = "1.5.2"
 serde = { version = "1.0.117", features = ["derive"] }
 is_debug = "1.0.1"

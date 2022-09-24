@@ -11,7 +11,7 @@ macro_rules! de_from {
 const KIND_FILE: &str = "file";
 const KIND_CONSOLE: &str = "console";
 
-#[derive(Debug, Serialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 pub enum OutKind {
     File,
     Console,

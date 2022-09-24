@@ -245,7 +245,7 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
     Ok(config)
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct LogConfig {
     pub path: String,
     pub level: String,

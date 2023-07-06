@@ -570,7 +570,6 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
 fn init_default_log(log: &mut LogConfig) {
     if log.path.trim().is_empty() {
         let file_name = std::env::vars()
-            .into_iter()
             .filter(|(k, _)| k == "CARGO_PKG_NAME")
             .map(|(_, v)| v.to_case(Case::Snake))
             .collect::<Vec<_>>()

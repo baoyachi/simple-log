@@ -92,12 +92,14 @@ mod out_kind;
 
 use crate::out_kind::OutKind;
 use convert_case::{Case, Casing};
+use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
 use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::RollingFileAppender;
-use log4rs::config::{Appender, Config, Root};
+use log4rs::config::runtime::LoggerBuilder;
+use log4rs::config::{Appender, Config, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use once_cell::sync::OnceCell;
 use out_kind::deserialize_out_kind;
@@ -254,6 +256,8 @@ pub struct LogConfig {
     pub out_kind: Vec<OutKind>,
     pub roll_count: u32,
     pub time_format: Option<String>,
+    #[serde(default)]
+    pub filter_module: Vec<String>,
 }
 
 impl LogConfig {
@@ -499,6 +503,7 @@ pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
         out_kind: vec![OutKind::Console],
         roll_count: 0,
         time_format: Some(DEFAULT_DATE_TIME_FORMAT.to_string()),
+        filter_module: vec![],
     };
     init_log_conf(config)?;
     Ok(())
@@ -534,6 +539,7 @@ pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> S
         out_kind: vec![OutKind::File],
         roll_count,
         time_format: Some(DEFAULT_DATE_TIME_FORMAT.to_string()),
+        filter_module: vec![],
     };
     init_log_conf(config)?;
     Ok(())
@@ -558,6 +564,14 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
                 root_builder = root_builder.appender(SIMPLE_LOG_CONSOLE);
             }
         }
+    }
+
+    for module_name in &log.filter_module {
+        config_builder = config_builder.logger(LoggerBuilder::build(
+            Logger::builder(),
+            module_name,
+            LevelFilter::Off,
+        ));
     }
 
     let config = config_builder

@@ -361,7 +361,7 @@ impl LogConfigBuilder {
     /// It's optional method.
     /// Also support default data_time_format:%Y-%m-%d %H:%M:%S.%f
     ///
-    /// Support data_time_format with link:https://docs.rs/chrono/0.4.19/chrono/naive/struct.NaiveDateTime.html#method.parse_from_str
+    /// Support data_time_format with link:`<https://docs.rs/chrono/0.4.19/chrono/naive/struct.NaiveDateTime.html#method.parse_from_str>`
     pub fn time_format<S: Into<String>>(mut self, time_format: S) -> LogConfigBuilder {
         self.0.time_format = Some(time_format.into());
         self
@@ -431,7 +431,7 @@ pub fn new(log_config: LogConfig) -> SimpleResult<()> {
 /// This method can quick init simple-log with no configuration.
 ///
 /// If your just want use in demo or test project. Your can use this method.
-/// The [quick] method not add any params in method. It's so easy.
+/// The [quick()] method not add any params in method. It's so easy.
 ///
 /// The [`LogConfig`] filed just used inner default value.
 ///
@@ -443,7 +443,7 @@ pub fn new(log_config: LogConfig) -> SimpleResult<()> {
 ///     roll_count:10 //At the same time, it can save 10 files endwith .gz
 ///```
 ///
-/// If you don't want use [quick] method.Also can use [new] method.
+/// If you don't want use [quick!] method.Also can use [new] method.
 ///
 /// # Examples
 ///

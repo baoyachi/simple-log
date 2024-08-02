@@ -247,7 +247,7 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct LogConfig {
-    pub path: String,
+    pub path: Option<String>,
     pub level: String,
     pub size: u64,
     #[serde(deserialize_with = "deserialize_out_kind", default)]
@@ -257,8 +257,8 @@ pub struct LogConfig {
 }
 
 impl LogConfig {
-    pub fn get_path(&self) -> &String {
-        &self.path
+    pub fn get_path(&self) -> Option<&String> {
+        self.path.as_ref()
     }
 
     pub fn get_level(&self) -> &String {
@@ -323,7 +323,7 @@ impl LogConfigBuilder {
     /// ```
     ///
     pub fn path<S: Into<String>>(mut self, path: S) -> LogConfigBuilder {
-        self.0.path = path.into();
+        self.0.path = Some(path.into());
         self
     }
 
@@ -466,7 +466,7 @@ pub fn quick_log_level<S: Into<String>>(level: S, path: Option<S>) -> SimpleResu
     let level = level.into();
     log_level::validate_log_level(&level)?;
     let mut config = LogConfig {
-        path: path.map(|x| x.into()).unwrap_or_else(|| "".into()),
+        path: path.map(|x| x.into()),
         level,
         ..Default::default()
     };
@@ -493,7 +493,7 @@ pub fn quick_log_level<S: Into<String>>(level: S, path: Option<S>) -> SimpleResu
 /// ```
 pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
     let config = LogConfig {
-        path: "".to_string(),
+        path: None,
         level: level.into(),
         size: 0,
         out_kind: vec![OutKind::Console],
@@ -528,7 +528,7 @@ pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
 /// ```
 pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
     let config = LogConfig {
-        path: path.into(),
+        path: Some(path.into()),
         level: level.into(),
         size,
         out_kind: vec![OutKind::File],
@@ -545,9 +545,11 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
     for kind in &log.out_kind {
         match kind {
             OutKind::File => {
-                config_builder = config_builder
-                    .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(log)?));
-                root_builder = root_builder.appender(SIMPLE_LOG_FILE);
+                if log.path.as_ref().is_some() {
+                    config_builder = config_builder
+                        .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(log)?));
+                    root_builder = root_builder.appender(SIMPLE_LOG_FILE);
+                }
             }
             OutKind::Console => {
                 let console = ConsoleAppender::builder()
@@ -568,15 +570,17 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
 
 /// check log config,and give default value
 fn init_default_log(log: &mut LogConfig) {
-    if log.path.trim().is_empty() {
-        let file_name = std::env::vars()
-            .filter(|(k, _)| k == "CARGO_PKG_NAME")
-            .map(|(_, v)| v.to_case(Case::Snake))
-            .collect::<Vec<_>>()
-            .pop()
-            .unwrap_or_else(|| "simple_log".to_string());
+    if let Some(path) = &log.path {
+        if path.trim().is_empty() {
+            let file_name = std::env::vars()
+                .filter(|(k, _)| k == "CARGO_PKG_NAME")
+                .map(|(_, v)| v.to_case(Case::Snake))
+                .collect::<Vec<_>>()
+                .pop()
+                .unwrap_or_else(|| "simple_log".to_string());
 
-        log.path = format!("./tmp/{}.log", file_name);
+            log.path = Some(format!("./tmp/{}.log", file_name));
+        }
     }
 
     if log.size == 0 {
@@ -614,9 +618,11 @@ fn encoder(time_format: Option<&String>, color: bool) -> PatternEncoder {
 }
 
 fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
+    // If the log is written to a file, the path parameter is required
+    let path = log.path.as_ref().expect("Expected the path to write the log file, but it is empty");
     let roll = FixedWindowRoller::builder()
         .base(0)
-        .build(format!("{}.{{}}.gz", log.path).as_str(), log.roll_count)
+        .build(format!("{}.{{}}.gz", path).as_str(), log.roll_count)
         .map_err(|e| e.to_string())?;
 
     let trigger = SizeTrigger::new(log.size * 1024 * 1024);
@@ -625,7 +631,7 @@ fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
 
     let logfile = RollingFileAppender::builder()
         .encoder(Box::new(encoder(log.time_format.as_ref(), false)))
-        .build(log.path.clone(), Box::new(policy))
+        .build(path.clone(), Box::new(policy))
         .map_err(|e| e.to_string())?;
 
     Ok(Box::new(logfile))

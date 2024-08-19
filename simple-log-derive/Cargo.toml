@@ -1,0 +1,20 @@
+[package]
+name = "simple-log-derive"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+keywords.workspace = true
+readme.workspace = true
+categories.workspace = true
+documentation.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lib]
+proc-macro = true
+
+
+[dependencies]
+syn = "2"
+quote = "1"

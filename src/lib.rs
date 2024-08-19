@@ -105,6 +105,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 pub use is_debug::{is_debug, is_release};
+pub use simple_log_derive::*;
+
 
 pub type SimpleResult<T> = Result<T, String>;
 

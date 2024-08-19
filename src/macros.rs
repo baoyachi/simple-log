@@ -53,6 +53,20 @@ macro_rules! trace {
     )
 }
 
+
+#[macro_export(local_inner_macros)]
+macro_rules! log_target {
+    ($($x:expr),+ $(,)?) => {
+        $(
+            $crate::log_target_derive!($x);
+        )+
+    };
+    ($arg:expr) => {
+        $crate::log_target_derive!($arg);
+    };
+}
+
+
 #[macro_export]
 macro_rules! quick {
     () => {

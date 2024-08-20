@@ -8,7 +8,7 @@ readme = "README.md"
 categories = ["development-tools::debugging"]
 documentation = "https://docs.rs/simple-log"
 repository = "https://github.com/baoyachi/simple-log"
-license = "MIT Or Apache-2.0"
+license = "MIT OR Apache-2.0"
 
 [package]
 name = "simple-log"

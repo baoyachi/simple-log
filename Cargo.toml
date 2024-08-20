@@ -1,5 +1,5 @@
 [workspace.package]
-version = "1.7.0"
+version = "1.7.1"
 edition = "2021"
 authors = ["baoyachi <liaoymxsdl@gmail.com>"]
 description = "A simple log. It's really simple use"
@@ -36,7 +36,7 @@ convert_case = "0.6.0"
 [dependencies.simple-log-derive]
 path = "simple-log-derive"
 optional = true
-version = "1.7.0"
+version = "1"
 
 [dev-dependencies]
 serde_json = "1"
@@ -49,3 +49,8 @@ members = ["./", "simple-log-derive"]
 
 [features]
 target = ["simple-log-derive"]
+
+[[example]]
+name = "target"
+path = "examples/target.rs"
+required-features = ["target"]

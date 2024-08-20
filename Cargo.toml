@@ -1,5 +1,5 @@
 [workspace.package]
-version = "1.7.1"
+version = "1.7.2"
 edition = "2021"
 authors = ["baoyachi <liaoymxsdl@gmail.com>"]
 description = "A simple log. It's really simple use"
@@ -34,7 +34,7 @@ is_debug = "1.0.1"
 convert_case = "0.6.0"
 
 [dependencies.simple-log-derive]
-path = "simple-log-derive"
+path = "derive"
 optional = true
 version = "1"
 
@@ -44,7 +44,7 @@ toml = "0.8.19"
 serde_yaml = "0.9.13"
 
 [workspace]
-members = ["./", "simple-log-derive"]
+members = ["./", "derive"]
 
 
 [features]

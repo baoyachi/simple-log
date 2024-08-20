@@ -2,16 +2,18 @@
 //!
 //! With OutPut
 //! ```bash
-//! 2024-08-20 15:43:09.309146000 [TRACE] [ctrl] <examples/target.rs:18>:test target trace
-//! 2024-08-20 15:43:09.309336000 [TRACE] [parser] <examples/target.rs:19>:test target trace
-//! 2024-08-20 15:43:09.309345000 [DEBUG] [target] <examples/target.rs:21>:test target debug
-//! 2024-08-20 15:43:09.309352000 [DEBUG] [ctrl] <examples/target.rs:22>:test target debug
-//! 2024-08-20 15:43:09.309358000 [DEBUG] [parser] <examples/target.rs:23>:test target debug
-//! 2024-08-20 15:43:09.309364000 [INFO] [target] <examples/target.rs:25>:test target info
-//! 2024-08-20 15:43:09.309371000 [INFO] [ctrl] <examples/target.rs:26>:test target info
-//! 2024-08-20 15:43:09.309377000 [INFO] [parser] <examples/target.rs:27>:test target info
-//! 2024-08-20 15:43:09.309383000 [WARN] [target] <examples/target.rs:29>:test target warn
-//! 2024-08-20 15:43:09.309389000 [ERROR] [target] <examples/target.rs:30>:test target error
+//! 2024-08-20 16:11:16.380183000 [TRACE] [ctrl] <examples/target.rs:26>:test target trace
+//! 2024-08-20 16:11:16.380376000 [TRACE] [parser] <examples/target.rs:27>:test target trace
+//! 2024-08-20 16:11:16.380388000 [DEBUG] [target] <examples/target.rs:29>:test target debug
+//! 2024-08-20 16:11:16.380396000 [DEBUG] [ctrl] <examples/target.rs:30>:test target debug
+//! 2024-08-20 16:11:16.380402000 [DEBUG] [parser] <examples/target.rs:31>:test target debug
+//! 2024-08-20 16:11:16.380409000 [INFO] [target] <examples/target.rs:33>:test target info
+//! 2024-08-20 16:11:16.380416000 [INFO] [ctrl] <examples/target.rs:34>:test target info
+//! 2024-08-20 16:11:16.380422000 [INFO] [parser] <examples/target.rs:35>:test target info
+//! 2024-08-20 16:11:16.380428000 [WARN] [target] <examples/target.rs:37>:test target warn
+//! 2024-08-20 16:11:16.380434000 [ERROR] [target] <examples/target.rs:38>:test target error
+//! 2024-08-20 16:11:16.380441000 [INFO] [conf] <examples/target.rs:40>:test target conf
+//! 2024-08-20 16:11:16.380447000 [INFO] [bench] <examples/target.rs:41>:test target bench
 //! ```
 
 #[macro_use]
@@ -21,7 +23,7 @@ fn main() -> Result<(), String> {
     simple_log::console("trace")?;
 
     simple_log::log_target!(ctrl);
-    simple_log::log_target!(parser);
+    simple_log::log_target!(parser, launch, conf, bench);
 
     trace_ctrl!("test target trace");
     trace_parser!("test target trace");
@@ -36,6 +38,9 @@ fn main() -> Result<(), String> {
 
     warn!("test target warn");
     error!("test target error");
+
+    info_conf!("test target conf");
+    info_bench!("test target bench");
 
     Ok(())
 }

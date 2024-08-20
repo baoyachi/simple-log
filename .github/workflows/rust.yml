@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Rust
-        uses: hecrj/setup-rust-action@v1
+        uses: hecrj/setup-rust-action@v2
         with:
           components: rustfmt
           # Note that `nightly` is required for `license_template_path`, as
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Rust
-        uses: hecrj/setup-rust-action@v1
+        uses: hecrj/setup-rust-action@v2
         with:
           components: clippy
       - uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Rust
-        uses: hecrj/setup-rust-action@v1
+        uses: hecrj/setup-rust-action@v2
       - uses: actions/checkout@master
       - run: cargo check --all-targets --all-features
 
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Rust
-        uses: hecrj/setup-rust-action@v1
+        uses: hecrj/setup-rust-action@v2
         with:
           rust-version: ${{ matrix.rust }}
       - name: Install Tarpaulin
@@ -72,7 +72,7 @@ jobs:
     needs: [test]
     steps:
       - name: Set up Rust
-        uses: hecrj/setup-rust-action@v1
+        uses: hecrj/setup-rust-action@v2
       - uses: actions/checkout@v4
       - name: Publish
         shell: bash

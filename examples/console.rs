@@ -14,5 +14,8 @@ fn main() -> Result<(), String> {
 
     debug!("test console debug");
     info!("test console info");
+    warn!("test console warn");
+    error!("test console error");
+
     Ok(())
 }

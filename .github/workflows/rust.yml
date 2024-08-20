@@ -14,7 +14,7 @@ jobs:
           # Note that `nightly` is required for `license_template_path`, as
           # it's an unstable feature.
           rust-version: nightly
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: cargo +nightly fmt -- --check --config-path <(echo 'license_template_path = "HEADER"')
 
   lint:
@@ -24,7 +24,7 @@ jobs:
         uses: hecrj/setup-rust-action@v1
         with:
           components: clippy
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: cargo clippy --all-targets --all-features -- -D warnings
 
   compile:
@@ -52,7 +52,7 @@ jobs:
           version: 0.14.2
           use-tool-cache: true
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Test
         run: |
           cargo test --all-features
@@ -73,7 +73,7 @@ jobs:
     steps:
       - name: Set up Rust
         uses: hecrj/setup-rust-action@v1
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Publish
         shell: bash
         run: |

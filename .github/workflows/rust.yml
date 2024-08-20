@@ -77,4 +77,5 @@ jobs:
       - name: Publish
         shell: bash
         run: |
+          cargo publish -p simple-log-derive --token ${{ secrets.CRATES_TOKEN }}
           cargo publish --token ${{ secrets.CRATES_TOKEN }}

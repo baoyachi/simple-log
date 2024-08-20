@@ -105,8 +105,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 pub use is_debug::{is_debug, is_release};
+#[cfg(feature = "target")]
 pub use simple_log_derive::*;
-
 
 pub type SimpleResult<T> = Result<T, String>;
 
@@ -615,13 +615,25 @@ fn encoder(time_format: Option<&String>, color: bool) -> PatternEncoder {
         false => "l",
     };
     let mut pattern = format!("{{d({})}} [{{{}}}] ", time_format, color_level);
-    pattern += "<{M}:{L}>:{m}{n}";
+
+    #[cfg(feature = "target")]
+    {
+        pattern += "[{t}] <{f}:{L}>:{m}{n}";
+    }
+    #[cfg(not(feature = "target"))]
+    {
+        pattern += "<{f}:{L}>:{m}{n}";
+    }
+
     PatternEncoder::new(pattern.as_str())
 }
 
 fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
     // If the log is written to a file, the path parameter is required
-    let path = log.path.as_ref().expect("Expected the path to write the log file, but it is empty");
+    let path = log
+        .path
+        .as_ref()
+        .expect("Expected the path to write the log file, but it is empty");
     let roll = FixedWindowRoller::builder()
         .base(0)
         .build(format!("{}.{{}}.gz", path).as_str(), log.roll_count)

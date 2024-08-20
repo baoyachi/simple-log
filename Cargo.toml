@@ -1,3 +1,15 @@
+[workspace.package]
+version = "1.7.0"
+edition = "2021"
+authors = ["baoyachi <liaoymxsdl@gmail.com>"]
+description = "A simple log. It's really simple use"
+keywords = ["log", "simple-log", "logger", "log4j", "log4rs"]
+readme = "README.md"
+categories = ["development-tools::debugging"]
+documentation = "https://docs.rs/simple-log"
+repository = "https://github.com/baoyachi/simple-log"
+license = "MIT Or Apache-2.0"
+
 [package]
 name = "simple-log"
 version.workspace = true
@@ -20,7 +32,7 @@ once_cell = "1.15.0"
 serde = { version = "1.0.145", features = ["derive"] }
 is_debug = "1.0.1"
 convert_case = "0.6.0"
-simple-log-derive = { path = "simple-log-derive" }
+simple-log-derive = { path = "simple-log-derive", optional = true }
 
 [dev-dependencies]
 serde_json = "1"
@@ -30,14 +42,6 @@ serde_yaml = "0.9.13"
 [workspace]
 members = ["./", "simple-log-derive"]
 
-[workspace.package]
-version = "1.7.0"
-edition = "2021"
-authors = ["baoyachi <liaoymxsdl@gmail.com>"]
-description = "A simple log. It's really simple use"
-keywords = ["log", "simple-log", "logger", "log4j", "log4rs"]
-readme = "README.md"
-categories = ["development-tools::debugging"]
-documentation = "https://docs.rs/simple-log"
-repository = "https://github.com/baoyachi/simple-log"
-license = "MIT Or Apache-2.0"
+
+[features]
+target = ["simple-log-derive"]

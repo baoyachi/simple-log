@@ -1,5 +1,5 @@
 [workspace.package]
-version = "1.7.2"
+version = "1.7.3"
 edition = "2021"
 authors = ["baoyachi <liaoymxsdl@gmail.com>"]
 description = "A simple log. It's really simple use"

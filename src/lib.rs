@@ -329,7 +329,6 @@ impl LogConfigBuilder {
         self
     }
 
-    ///
     pub fn level<S: Into<String>>(mut self, level: S) -> LogConfigBuilder {
         self.0.level = level.into();
         self

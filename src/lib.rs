@@ -251,12 +251,16 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct LogConfig {
+    #[serde(default)]
     pub path: Option<String>,
     pub level: String,
+    #[serde(default)]
     pub size: u64,
     #[serde(deserialize_with = "deserialize_out_kind", default)]
     pub out_kind: Vec<OutKind>,
+    #[serde(default)]
     pub roll_count: u32,
+    #[serde(default)]
     pub time_format: Option<String>,
     #[serde(default)]
     pub filter_module: Vec<String>,

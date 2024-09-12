@@ -578,13 +578,18 @@ fn build_config(log: &mut LogConfig) -> SimpleResult<Config> {
     for kind in &log.out_kind {
         match kind {
             OutKind::File => {
+                // Check if the directory is set and path is not set; if so, set the default path.
                 if log.directory.is_some() && log.path.is_none() {
-                    // If path is missing, add default file name
                     log.path = Some(log.default_basename());
                 }
-                config_builder = config_builder
-                    .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(log)?));
-                root_builder = root_builder.appender(SIMPLE_LOG_FILE);
+
+                // If the path is now set (either it was initially or we just set it),
+                // proceed to build the appender and configure it.
+                if log.path.is_some() {
+                    config_builder = config_builder
+                        .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(&log)?));
+                    root_builder = root_builder.appender(SIMPLE_LOG_FILE);
+                }
             }
             OutKind::Console => {
                 let console = ConsoleAppender::builder()

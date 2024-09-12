@@ -587,7 +587,7 @@ fn build_config(log: &mut LogConfig) -> SimpleResult<Config> {
                 // proceed to build the appender and configure it.
                 if log.path.is_some() {
                     config_builder = config_builder
-                        .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(&log)?));
+                        .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(log)?));
                     root_builder = root_builder.appender(SIMPLE_LOG_FILE);
                 }
             }

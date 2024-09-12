@@ -656,18 +656,18 @@ fn encoder(time_format: Option<&String>, color: bool) -> PatternEncoder {
     };
 
     let color_level = match color {
-        true => "h({l})",
-        false => "l",
+        true => "{h({l:5})}",
+        false => "{l:5}",
     };
-    let mut pattern = format!("{{d({})}} [{{{}}}] ", time_format, color_level);
+    let mut pattern = format!("{{d({})}} [{}] ", time_format, color_level);
 
     #[cfg(feature = "target")]
     {
-        pattern += "[{t}] <{f}:{L}>:{m}{n}";
+        pattern += "[{t:7}] <{M}:{L}>:{m}{n}";
     }
     #[cfg(not(feature = "target"))]
     {
-        pattern += "<{f}:{L}>:{m}{n}";
+        pattern += "<{M}:{L}>:{m}{n}";
     }
 
     PatternEncoder::new(pattern.as_str())

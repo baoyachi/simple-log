@@ -91,7 +91,6 @@ pub mod macros;
 mod out_kind;
 
 use crate::out_kind::OutKind;
-use convert_case::{Case, Casing};
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
@@ -104,6 +103,9 @@ use log4rs::encode::pattern::PatternEncoder;
 use once_cell::sync::OnceCell;
 use out_kind::deserialize_out_kind;
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
+use std::ffi::OsStr;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 pub use is_debug::{is_debug, is_release};
@@ -114,6 +116,7 @@ pub type SimpleResult<T> = Result<T, String>;
 
 const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
+const SIMPLE_LOG_BASE_NAME: &str = "simple_log";
 
 const DEFAULT_DATE_TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S.%f";
 
@@ -125,8 +128,8 @@ struct LogConf {
 
 static LOG_CONF: OnceCell<Mutex<LogConf>> = OnceCell::new();
 
-fn init_log_conf(log_config: LogConfig) -> SimpleResult<()> {
-    let config = build_config(&log_config)?;
+fn init_log_conf(mut log_config: LogConfig) -> SimpleResult<()> {
+    let config = build_config(&mut log_config)?;
     let handle = log4rs::init_config(config).map_err(|e| e.to_string())?;
     LOG_CONF.get_or_init(|| Mutex::new(LogConf { log_config, handle }));
     Ok(())
@@ -174,10 +177,10 @@ fn init_log_conf(log_config: LogConfig) -> SimpleResult<()> {
 ///     Ok(())
 /// }
 ///```
-pub fn update_log_conf(log_config: LogConfig) -> SimpleResult<LogConfig> {
+pub fn update_log_conf(mut log_config: LogConfig) -> SimpleResult<LogConfig> {
     let log_conf = LOG_CONF.get().unwrap();
     let mut guard = log_conf.lock().unwrap();
-    let config = build_config(&log_config)?;
+    let config = build_config(&mut log_config)?;
     guard.log_config = log_config;
     guard.handle.set_config(config);
     Ok(guard.log_config.clone())
@@ -211,7 +214,7 @@ pub fn update_log_level<S: Into<String>>(level: S) -> SimpleResult<LogConfig> {
     let log_conf = LOG_CONF.get().unwrap();
     let mut guard = log_conf.lock().unwrap();
     guard.log_config.level = level.into();
-    let config = build_config(&guard.log_config)?;
+    let config = build_config(&mut guard.log_config)?;
     guard.handle.set_config(config);
     Ok(guard.log_config.clone())
 }
@@ -253,6 +256,8 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
 pub struct LogConfig {
     #[serde(default)]
     pub path: Option<String>,
+    #[serde(default)]
+    pub directory: Option<String>,
     pub level: String,
     #[serde(default)]
     pub size: u64,
@@ -267,8 +272,23 @@ pub struct LogConfig {
 }
 
 impl LogConfig {
+    fn default_basename(&self) -> String {
+        let arg0 = std::env::args()
+            .next()
+            .unwrap_or_else(|| SIMPLE_LOG_BASE_NAME.to_owned());
+        let path = Path::new(&arg0)
+            .file_stem()
+            .map(OsStr::to_string_lossy)
+            .unwrap_or(Cow::Borrowed(SIMPLE_LOG_BASE_NAME))
+            .to_string();
+        format!("{path}.log")
+    }
     pub fn get_path(&self) -> Option<&String> {
         self.path.as_ref()
+    }
+
+    pub fn get_directory(&self) -> Option<&String> {
+        self.directory.as_ref()
     }
 
     pub fn get_level(&self) -> &String {
@@ -503,6 +523,7 @@ pub fn quick_log_level<S: Into<String>>(level: S, path: Option<S>) -> SimpleResu
 pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
     let config = LogConfig {
         path: None,
+        directory: None,
         level: level.into(),
         size: 0,
         out_kind: vec![OutKind::Console],
@@ -539,6 +560,7 @@ pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
 pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
     let config = LogConfig {
         path: Some(path.into()),
+        directory: None,
         level: level.into(),
         size,
         out_kind: vec![OutKind::File],
@@ -550,13 +572,20 @@ pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> S
     Ok(())
 }
 
-fn build_config(log: &LogConfig) -> SimpleResult<Config> {
+fn build_config(log: &mut LogConfig) -> SimpleResult<Config> {
     let mut config_builder = Config::builder();
     let mut root_builder = Root::builder();
     for kind in &log.out_kind {
         match kind {
             OutKind::File => {
-                if log.path.as_ref().is_some() {
+                // Check if the directory is set and path is not set; if so, set the default path.
+                if log.directory.is_some() && log.path.is_none() {
+                    log.path = Some(log.default_basename());
+                }
+
+                // If the path is now set (either it was initially or we just set it),
+                // proceed to build the appender and configure it.
+                if log.path.is_some() {
                     config_builder = config_builder
                         .appender(Appender::builder().build(SIMPLE_LOG_FILE, file_appender(log)?));
                     root_builder = root_builder.appender(SIMPLE_LOG_FILE);
@@ -591,14 +620,8 @@ fn build_config(log: &LogConfig) -> SimpleResult<Config> {
 fn init_default_log(log: &mut LogConfig) {
     if let Some(path) = &log.path {
         if path.trim().is_empty() {
-            let file_name = std::env::vars()
-                .filter(|(k, _)| k == "CARGO_PKG_NAME")
-                .map(|(_, v)| v.to_case(Case::Snake))
-                .collect::<Vec<_>>()
-                .pop()
-                .unwrap_or_else(|| "simple_log".to_string());
-
-            log.path = Some(format!("./tmp/{}.log", file_name));
+            let file_name = log.default_basename();
+            log.path = Some(format!("./tmp/{}", file_name));
         }
     }
 
@@ -651,9 +674,20 @@ fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
         .path
         .as_ref()
         .expect("Expected the path to write the log file, but it is empty");
+
+    let mut path = PathBuf::from(path);
+
+    if let Some(directory) = &log.directory {
+        let buf = PathBuf::from(directory);
+        path = buf.join(path);
+    }
+
     let roll = FixedWindowRoller::builder()
         .base(0)
-        .build(format!("{}.{{}}.gz", path).as_str(), log.roll_count)
+        .build(
+            format!("{}.{{}}.gz", path.display()).as_str(),
+            log.roll_count,
+        )
         .map_err(|e| e.to_string())?;
 
     let trigger = SizeTrigger::new(log.size * 1024 * 1024);

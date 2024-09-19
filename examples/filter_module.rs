@@ -24,9 +24,10 @@ fn main() -> Result<(), String> {
     time_format = "%H:%M:%S.%f"
     filter_target = ["filter_module::app::ctrl","filter_module::app::launch::conf"]
     "#;
+    //TODO fix
     let conf: LogConfig = toml::from_str(config).unwrap();
-    println!("{:?}", conf);
-    println!("{}", serde_json::to_string_pretty(&conf).unwrap());
+    // println!("{:?}", conf);
+    // println!("{}", serde_json::to_string_pretty(&conf).unwrap());
 
     simple_log::new(conf).unwrap(); //init log
 

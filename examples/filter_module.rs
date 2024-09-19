@@ -22,9 +22,11 @@ fn main() -> Result<(), String> {
     level = "debug"
     out_kind = "console"
     time_format = "%H:%M:%S.%f"
-    filter_module = ["filter_module::app::ctrl","filter_module::app::launch::conf"]
+    filter_target = ["filter_module::app::ctrl","filter_module::app::launch::conf"]
     "#;
     let conf: LogConfig = toml::from_str(config).unwrap();
+    println!("{:?}", conf);
+    println!("{}", serde_json::to_string_pretty(&conf).unwrap());
 
     simple_log::new(conf).unwrap(); //init log
 

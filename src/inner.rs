@@ -85,9 +85,10 @@
 //! [examples](https://github.com/baoyachi/simple-log/tree/main/examples).
 //!
 
-use crate::out_kind::deserialize_out_kind;
+use crate::level::{parse_level, LevelInto};
 use crate::out_kind::OutKind;
 use crate::SimpleResult;
+use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
@@ -181,7 +182,7 @@ pub fn update_log_conf(mut log_config: LogConfig) -> SimpleResult<LogConfig> {
 ///
 /// ```rust
 /// fn main() -> Result<(), String> {
-///     use simple_log::{LogConfigBuilder, update_log_level, log_level};
+///     use simple_log::{LogConfigBuilder, update_log_level};
 ///     let config = LogConfigBuilder::builder()
 ///         .path("./log/builder_log.log")
 ///         .size(1 * 64)
@@ -193,16 +194,16 @@ pub fn update_log_conf(mut log_config: LogConfig) -> SimpleResult<LogConfig> {
 ///     simple_log::new(config)?;
 ///
 ///     //update log level
-///     let config = update_log_level(log_level::DEBUG)?;
-///     assert_eq!("debug",config.get_level());
+///     let config = update_log_level(log::Level::Debug)?;
+///     assert_eq!("DEBUG",config.get_level());
 ///     Ok(())
 /// }
 /// ```
 ///
-pub fn update_log_level<S: Into<String>>(level: S) -> SimpleResult<LogConfig> {
+pub fn update_log_level<S: LevelInto>(level: S) -> SimpleResult<LogConfig> {
     let log_conf = LOG_CONF.get().unwrap();
     let mut guard = log_conf.lock().unwrap();
-    guard.log_config.set_level(level);
+    guard.log_config.set_level(level)?;
     let config = build_config(&mut guard.log_config)?;
     guard.handle.set_config(config);
     Ok(guard.log_config.clone())
@@ -241,13 +242,14 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
     Ok(config)
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
 pub struct LogConfig {
     #[serde(default)]
     pub path: Option<String>,
     #[serde(default)]
     pub directory: Option<String>,
-    pub level: String,
+    pub level: LevelFilter,
     #[serde(default)]
     pub size: u64,
     #[serde(deserialize_with = "deserialize_out_kind", default)]
@@ -256,44 +258,41 @@ pub struct LogConfig {
     pub roll_count: u32,
     #[serde(default)]
     pub time_format: Option<String>,
-    #[serde(default)]
-    pub filter_target: Vec<FilterTarget>,
+    #[serde(skip_deserializing, default)]
+    pub filter_target: Vec<TargetLevel>,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct FilterTarget {
+impl Default for LogConfig {
+    fn default() -> Self {
+        LogConfig {
+            path: None,
+            directory: None,
+            level: LevelFilter::Debug,
+            size: 0,
+            out_kind: vec![],
+            roll_count: 0,
+            time_format: None,
+            filter_target: vec![],
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct TargetLevel {
     name: String,
-    level: String,
+    level: LevelFilter,
 }
 
-impl FilterTarget {
-    pub fn targets<S: Into<String>>(level: S) -> Vec<FilterTarget> {
-        let level = level.into();
-        let mut targets = Vec::new();
-        let values: Vec<&str> = level.split(',').collect();
-        for value in values {
-            let t: Vec<&str> = value.split('=').collect();
-            if t.len().gt(&1) {
-                targets.push(FilterTarget {
-                    name: t[0].to_string(),
-                    level: t[1].to_string(),
-                });
-            }
-        }
-        targets
-    }
-}
-
-pub fn get_root_level<T: Into<String>>(level: T) -> String {
-    let level = level.into();
-    let targets: Vec<&str> = level.split(',').collect();
-    for target in targets {
-        let t: Vec<&str> = target.split('=').collect();
-        if t.len().eq(&1) {
-            return t[0].to_string();
+impl<S> From<(S, LevelFilter)> for TargetLevel
+where
+    S: AsRef<str>,
+{
+    fn from(value: (S, LevelFilter)) -> Self {
+        Self {
+            name: value.0.as_ref().to_string(),
+            level: value.1,
         }
     }
-    log_level::DEBUG.to_string()
 }
 
 impl LogConfig {
@@ -316,8 +315,8 @@ impl LogConfig {
         self.directory.as_ref()
     }
 
-    pub fn get_level(&self) -> &String {
-        &self.level
+    pub fn get_level(&self) -> &str {
+        self.level.as_str()
     }
 
     pub fn get_size(&self) -> u64 {
@@ -336,10 +335,12 @@ impl LogConfig {
         self.time_format.as_ref()
     }
 
-    pub(crate) fn set_level<T: Into<String>>(&mut self, level: T) {
-        let level = level.into();
-        self.level = get_root_level(level.clone());
-        self.filter_target = FilterTarget::targets(level);
+    pub(crate) fn set_level<T: LevelInto>(&mut self, level: T) -> SimpleResult<()> {
+        let level = level.into_level();
+        let (level, target) = parse_level(&level)?;
+        self.level = level;
+        self.filter_target = target;
+        Ok(())
     }
 }
 
@@ -393,9 +394,9 @@ impl LogConfigBuilder {
         self
     }
 
-    pub fn level<S: Into<String>>(mut self, level: S) -> LogConfigBuilder {
-        self.0.set_level(level);
-        self
+    pub fn level<S: LevelInto>(mut self, level: S) -> SimpleResult<LogConfigBuilder> {
+        self.0.set_level(level)?;
+        Ok(self)
     }
 
     pub fn size(mut self, size: u64) -> LogConfigBuilder {
@@ -524,21 +525,25 @@ pub fn new(log_config: LogConfig) -> SimpleResult<()> {
 /// }
 /// ```
 pub fn quick() -> SimpleResult<()> {
-    quick_log_level(log_level::DEBUG, None)
+    quick_log_level::<_, &str>("debug", None)
 }
 
-pub fn quick_log_level<S: Into<String>>(level: S, path: Option<S>) -> SimpleResult<()> {
-    let level = level.into();
-    log_level::validate_log_level(&level)?;
+pub fn quick_log_level<S: LevelInto, P: Into<String>>(
+    level: S,
+    path: Option<P>,
+) -> SimpleResult<()> {
+    let level = level.into_level();
+    let (level, targets) = parse_level(&level)?;
     let mut config = LogConfig {
-        path: path.map(|x| x.into()),
-        level: get_root_level(level.clone()),
-        ..Default::default()
+        path: path.map(|v| v.into()),
+        directory: None,
+        level,
+        size: 0,
+        out_kind: vec![],
+        roll_count: 0,
+        time_format: None,
+        filter_target: targets,
     };
-    let targets = FilterTarget::targets(level);
-    if !targets.is_empty() {
-        config.filter_target = targets;
-    }
     init_default_log(&mut config);
     init_log_conf(config)?;
     Ok(())
@@ -560,17 +565,18 @@ pub fn quick_log_level<S: Into<String>>(level: S, path: Option<S>) -> SimpleResu
 ///     Ok(())
 /// }
 /// ```
-pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
-    let level = level.into();
+pub fn console<S: LevelInto>(level: S) -> SimpleResult<()> {
+    let level = level.into_level();
+    let (level, targets) = parse_level(level)?;
     let config = LogConfig {
         path: None,
         directory: None,
-        level: get_root_level(level.clone()),
+        level,
         size: 0,
         out_kind: vec![OutKind::Console],
         roll_count: 0,
         time_format: Some(DEFAULT_DATE_TIME_FORMAT.to_string()),
-        filter_target: FilterTarget::targets(level),
+        filter_target: targets,
     };
     init_log_conf(config)?;
     Ok(())
@@ -598,17 +604,23 @@ pub fn console<S: Into<String>>(level: S) -> SimpleResult<()> {
 ///    Ok(())
 /// }
 /// ```
-pub fn file<S: Into<String>>(path: S, level: S, size: u64, roll_count: u32) -> SimpleResult<()> {
-    let level = level.into();
+pub fn file<P: Into<String>, S: LevelInto>(
+    path: P,
+    level: S,
+    size: u64,
+    roll_count: u32,
+) -> SimpleResult<()> {
+    let level = level.into_level();
+    let (level, targets) = parse_level(level)?;
     let config = LogConfig {
         path: Some(path.into()),
         directory: None,
-        level: get_root_level(level.clone()),
+        level,
         size,
         out_kind: vec![OutKind::File],
         roll_count,
         time_format: Some(DEFAULT_DATE_TIME_FORMAT.to_string()),
-        filter_target: FilterTarget::targets(level),
+        filter_target: targets,
     };
     init_log_conf(config)?;
     Ok(())
@@ -648,12 +660,12 @@ fn build_config(log: &mut LogConfig) -> SimpleResult<Config> {
         config_builder = config_builder.logger(LoggerBuilder::build(
             Logger::builder(),
             &target.name,
-            log_level::form_log_level(&target.level),
+            target.level,
         ));
     }
 
     let config = config_builder
-        .build(root_builder.build(log_level::form_log_level(&log.level)))
+        .build(root_builder.build(log.level))
         .map_err(|e| e.to_string())?;
     Ok(config)
 }
@@ -673,10 +685,6 @@ fn init_default_log(log: &mut LogConfig) {
 
     if log.roll_count == 0 {
         log.roll_count = 10
-    }
-
-    if log.level.is_empty() {
-        log.level = log_level::DEBUG.to_string()
     }
 
     if log.out_kind.is_empty() {
@@ -742,56 +750,4 @@ fn file_appender(log: &LogConfig) -> SimpleResult<Box<RollingFileAppender>> {
         .map_err(|e| e.to_string())?;
 
     Ok(Box::new(logfile))
-}
-
-pub mod log_level {
-    use log::LevelFilter;
-
-    pub const TRACE: &str = "trace";
-    pub const DEBUG: &str = "debug";
-    pub const INFO: &str = "info";
-    pub const WARN: &str = "warn";
-    pub const ERROR: &str = "error";
-
-    /// convert log level str to [LevelFilter].
-    ///
-    /// The default log level use [LevelFilter::Debug].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// fn run() {
-    ///     use simple_log::log_level::form_log_level;
-    ///     use log::LevelFilter;
-    ///     let level = form_log_level("warn");
-    ///     assert_eq!(level,LevelFilter::Warn);
-    ///
-    ///     let level = form_log_level("error");
-    ///     assert_eq!(level,LevelFilter::Error);
-    ///
-    ///     let level = form_log_level("no");
-    ///     assert_eq!(level,LevelFilter::Debug);
-    /// }
-    /// ```
-    ///
-    pub fn form_log_level(level: &str) -> LevelFilter {
-        validate_log_level(level).unwrap_or(LevelFilter::Debug)
-    }
-
-    pub fn validate_log_level(level: &str) -> Result<LevelFilter, String> {
-        match level.to_lowercase().as_str() {
-            TRACE => Ok(LevelFilter::Trace),
-            DEBUG => Ok(LevelFilter::Debug),
-            INFO => Ok(LevelFilter::Info),
-            WARN => Ok(LevelFilter::Warn),
-            ERROR => Ok(LevelFilter::Error),
-            _ => {
-                let log_levels = format!("{},{},{},{},{}", TRACE, DEBUG, INFO, WARN, ERROR);
-                Err(format!(
-                    "unknown log_level:{},one of:[{}]",
-                    level, log_levels
-                ))
-            }
-        }
-    }
 }

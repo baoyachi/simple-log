@@ -10,7 +10,8 @@
 extern crate simple_log;
 
 fn main() -> Result<(), String> {
-    simple_log::file("./log/file.log", "debug", 100, 10)?;
+    let path = "./log/file.log";
+    simple_log::file(path, log::Level::Debug, 100, 10)?;
 
     debug!("test file debug");
     info!("test file info");

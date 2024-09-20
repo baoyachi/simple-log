@@ -17,7 +17,7 @@ fn main() -> Result<(), String> {
         .path("./log/builder_log.log")
         .size(100)
         .roll_count(10)
-        .level("debug")
+        .level("debug")?
         .output_file()
         .output_console()
         .build();
@@ -33,7 +33,7 @@ fn main() -> Result<(), String> {
         .path("./log/builder_log.log")
         .size(2)
         .roll_count(2)
-        .level("info")
+        .level("info")?
         .output_file()
         .output_console()
         .build();

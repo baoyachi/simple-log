@@ -9,8 +9,10 @@
 #[macro_use]
 extern crate simple_log;
 
+use log::Level;
+
 fn main() -> Result<(), String> {
-    simple_log::console("debug")?;
+    simple_log::console(Level::Debug)?;
 
     debug!("test console debug");
     info!("test console info");

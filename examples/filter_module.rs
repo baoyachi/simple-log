@@ -15,16 +15,35 @@
 #[macro_use]
 extern crate simple_log;
 
+use log::LevelFilter;
 use simple_log::LogConfig;
 
 fn main() -> Result<(), String> {
     let config = r#"
-    level = "debug"
+    level = "debug,filter_module::app::ctrl=warn,filter_module::app::launch::conf=error"
     out_kind = "console"
     time_format = "%H:%M:%S.%f"
-    filter_module = ["filter_module::app::ctrl","filter_module::app::launch::conf"]
     "#;
     let conf: LogConfig = toml::from_str(config).unwrap();
+
+    assert_eq!(
+        conf,
+        LogConfig {
+            path: None,
+            directory: None,
+            level: (
+                LevelFilter::Debug,
+                vec![
+                    ("filter_module::app::ctrl", LevelFilter::Warn).into(),
+                    ("filter_module::app::launch::conf", LevelFilter::Error).into(),
+                ]
+            ),
+            size: 0,
+            out_kind: vec!["console".into()],
+            roll_count: 0,
+            time_format: Some("%H:%M:%S.%f".to_string()),
+        }
+    );
 
     simple_log::new(conf).unwrap(); //init log
 
@@ -35,7 +54,8 @@ fn main() -> Result<(), String> {
 
     app::init_app();
     app::launch::init_launch();
-    app::launch::conf::err_conf(); // this log filter
+    app::launch::conf::err_conf();
+    app::launch::conf::debug_conf(); // this log filter
     app::launch::parser::err_parser();
     app::ctrl::init_ctrl(); // this log filter
 
@@ -55,6 +75,10 @@ pub(crate) mod app {
         pub mod conf {
             pub fn err_conf() {
                 error!("conf log")
+            }
+
+            pub fn debug_conf() {
+                debug!("conf log")
             }
         }
 

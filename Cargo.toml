@@ -1,5 +1,5 @@
 [workspace.package]
-version = "1.9.0"
+version = "2.0.0"
 edition = "2021"
 authors = ["baoyachi <liaoymxsdl@gmail.com>"]
 description = "A simple log. It's really simple use"
@@ -30,11 +30,12 @@ log = "0.4.11"
 log4rs = { version = "1.1.1", default-features = false, features = ["all_components", "humantime", "serde", "serde-value", "yaml_format", "gzip"], optional = true }
 once_cell = { version = "1.15.0", default-features = false, optional = true }
 serde = { version = "1.0.145", default-features = false, features = ["derive"] }
+winnow = "0.6.18"
 
 [dependencies.simple-log-derive]
 path = "derive"
 optional = true
-version = "1"
+version = "2"
 
 [dev-dependencies]
 serde_json = "1"

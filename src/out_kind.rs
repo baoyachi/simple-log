@@ -30,7 +30,12 @@ impl<'de> Deserialize<'de> for OutKind {
 
 const KIND_EXPECT: &str = "expect out_kind string or vec:'console','file' or ['console','file']";
 
-struct KindSerde;
+impl<S: AsRef<str>> From<S> for OutKind {
+    fn from(value: S) -> Self {
+        KindSerde::deserialize(value.as_ref()).unwrap()
+    }
+}
+pub struct KindSerde;
 
 impl KindSerde {
     fn deserialize<S>(s: S) -> Result<OutKind, String>
@@ -38,7 +43,7 @@ impl KindSerde {
         S: Into<String>,
     {
         let s = s.into();
-        match s.as_str() {
+        match s.to_ascii_lowercase().as_str() {
             KIND_FILE => Ok(OutKind::File),
             KIND_CONSOLE => Ok(OutKind::Console),
             _ => Err(format!("Invalid state '{}',{}", s, KIND_EXPECT)),
@@ -46,7 +51,7 @@ impl KindSerde {
     }
 }
 
-impl<'de> serde::de::Visitor<'de> for KindSerde {
+impl<'de> de::Visitor<'de> for KindSerde {
     type Value = Vec<OutKind>;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -55,7 +60,7 @@ impl<'de> serde::de::Visitor<'de> for KindSerde {
 
     fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
     where
-        E: serde::de::Error,
+        E: de::Error,
     {
         let kind = de_from!(s)?;
         Ok(vec![kind])
@@ -71,7 +76,7 @@ impl<'de> serde::de::Visitor<'de> for KindSerde {
 
 pub fn deserialize_out_kind<'de, D>(deserializer: D) -> Result<Vec<OutKind>, D::Error>
 where
-    D: serde::Deserializer<'de>,
+    D: Deserializer<'de>,
 {
     deserializer.deserialize_any(KindSerde)
 }

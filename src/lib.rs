@@ -6,6 +6,7 @@ pub mod macros;
 mod inner;
 pub mod level;
 mod out_kind;
+// mod serde;
 
 #[cfg(feature = "log_inner")]
 pub use inner::*;

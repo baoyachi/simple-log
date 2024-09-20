@@ -1,7 +1,12 @@
+use crate::inner::InnerLevel;
+use core::fmt;
 use log::{Level, LevelFilter};
 pub use parser::*;
+use serde::de::DeserializeSeed;
+use serde::{de, Deserializer};
 
 pub(crate) mod parser {
+    use crate::inner::InnerLevel;
     use crate::TargetLevel;
     use log::LevelFilter;
     use std::str::FromStr;
@@ -10,6 +15,7 @@ pub(crate) mod parser {
     use winnow::token::take_while;
     use winnow::{PResult, Parser};
 
+    ///
     /// ```rust
     /// use log::LevelFilter;
     /// use simple_log::level::parse_level;
@@ -30,14 +36,14 @@ pub(crate) mod parser {
     ///
     /// let input = "off !!!";
     /// assert_eq!(parse_level(input).err().unwrap(),
-    /// 		   r###"Failed to parse level:
+    /// r###"Failed to parse level:
     /// off !!!
     ///    ^
     /// "###);
     ///
     /// let input = "warning";
     /// assert_eq!(parse_level(input).err().unwrap(),
-    /// 		   r#"Failed to parse level:
+    /// r#"Failed to parse level:
     /// warning
     /// ^
     /// attempted to convert a string that doesn't match an existing log level"#);
@@ -45,7 +51,7 @@ pub(crate) mod parser {
     ///
     /// let input = "info,";
     /// assert_eq!(parse_level(input).err().unwrap(),
-    /// 		   r#"Failed to parse level:
+    /// r#"Failed to parse level:
     /// info,
     ///     ^
     /// "#);
@@ -58,16 +64,16 @@ pub(crate) mod parser {
     ///
     /// let input = "debug,app=error,filter_module::app::ctrl=error,app::launch::c123onf=info";
     /// assert_eq!(
-    /// 	parse_level(input).unwrap(),
-    /// 	(LevelFilter::Debug, vec![
-    /// 		("app", LevelFilter::Error).into(),
-    /// 		("filter_module::app::ctrl", LevelFilter::Error).into(),
-    /// 		("app::launch::c123onf", LevelFilter::Info).into(),
-    /// 	]));
-    ////
-    ////```
-    ////
-    pub fn parse_level(input: &str) -> Result<(LevelFilter, Vec<TargetLevel>), String> {
+    /// parse_level(input).unwrap(),
+    ///  (LevelFilter::Debug, vec![
+    ///   ("app", LevelFilter::Error).into(),
+    ///   ("filter_module::app::ctrl", LevelFilter::Error).into(),
+    ///   ("app::launch::c123onf", LevelFilter::Info).into(),
+    ///  ]));
+    ///
+    ///```
+    ///
+    pub fn parse_level(input: &str) -> Result<InnerLevel, String> {
         match (
             level,
             opt((multispace0, ',', repeat(1.., target_level)))
@@ -84,7 +90,7 @@ pub(crate) mod parser {
         alpha1.try_map(LevelFilter::from_str).parse_next(input)
     }
 
-    fn target_level<'a>(input: &mut &str) -> PResult<TargetLevel> {
+    fn target_level(input: &mut &str) -> PResult<TargetLevel> {
         (multispace0, target_name, '=', level, multispace0, opt(','))
             .map(|(_, name, _, level, _, _)| (name, level).into())
             .parse_next(input)
@@ -95,6 +101,7 @@ pub(crate) mod parser {
     }
 }
 
+#[allow(clippy::wrong_self_convention)]
 pub trait LevelInto {
     fn into_level(&self) -> &str;
 }
@@ -127,6 +134,57 @@ impl LevelInto for Level {
     fn into_level(&self) -> &str {
         self.as_str()
     }
+}
+
+macro_rules! de_from {
+    ($err:expr) => {
+        LevelSerde::deserialize($err).map_err(de::Error::custom)
+    };
+}
+
+struct LevelSerde;
+
+impl LevelSerde {
+    fn deserialize<S>(s: S) -> Result<InnerLevel, String>
+    where
+        S: Into<String>,
+    {
+        let s = s.into();
+        parse_level(&s)
+    }
+}
+
+impl<'de> DeserializeSeed<'de> for LevelSerde {
+    type Value = InnerLevel;
+
+    fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_any(self)
+    }
+}
+
+impl<'de> serde::de::Visitor<'de> for LevelSerde {
+    type Value = InnerLevel;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("inner level")
+    }
+
+    fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        de_from!(s)
+    }
+}
+
+pub fn deserialize_level<'de, D>(deserializer: D) -> Result<InnerLevel, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    deserializer.deserialize_any(LevelSerde)
 }
 
 #[cfg(test)]

@@ -16,7 +16,7 @@ fn main() -> Result<(), String> {
         .path("./log/builder_log.log")
         .size(100)
         .roll_count(10)
-        .level("debug")
+        .level("debug")?
         .time_format("%Y-%m-%d %H:%M:%S.%f")
         .output_file()
         .output_console()

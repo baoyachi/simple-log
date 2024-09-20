@@ -69,7 +69,7 @@ macro_rules! log_target {
 #[macro_export]
 macro_rules! quick {
     () => {
-        $crate::quick_log_level::<_, &str>(log::Level::Debug, None).unwrap()
+        $crate::quick_log_level::<_, &str>($crate::Level::Debug, None).unwrap()
     };
     ($level:expr) => {{
         $crate::quick_log_level::<_, &str>($level, None).unwrap()

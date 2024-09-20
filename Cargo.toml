@@ -35,7 +35,7 @@ winnow="0.6.18"
 [dependencies.simple-log-derive]
 path = "derive"
 optional = true
-version = "1"
+version = "2"
 
 [dev-dependencies]
 serde_json = "1"

@@ -33,7 +33,9 @@ jobs:
       - name: Set up Rust
         uses: hecrj/setup-rust-action@v2
       - uses: actions/checkout@master
-      - run: cargo check --all-targets --all-features
+      - run: |
+          cargo check --all-targets --all-features
+          cargo check --no-default-features
 
   test:
     strategy:

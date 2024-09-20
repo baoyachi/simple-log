@@ -199,7 +199,6 @@ mod tests {
 
         quick_log_level("debug");
         quick_log_level("debug".to_string());
-        quick_log_level(&"debug".to_string());
         quick_log_level(LevelFilter::Debug);
         quick_log_level(Level::Debug);
     }

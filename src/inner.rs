@@ -87,7 +87,7 @@
 
 use crate::level::{parse_level, LevelInto};
 use crate::out_kind::OutKind;
-use crate::SimpleResult;
+use crate::{InnerLevel, SimpleResult};
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
@@ -241,10 +241,10 @@ pub fn get_log_conf() -> SimpleResult<LogConfig> {
     let config = log_conf.lock().unwrap().log_config.clone();
     Ok(config)
 }
+
 use crate::level::deserialize_level;
 use crate::out_kind::deserialize_out_kind;
 
-pub(crate) type InnerLevel = (LevelFilter, Vec<TargetLevel>);
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub struct LogConfig {
@@ -274,24 +274,6 @@ impl Default for LogConfig {
             out_kind: vec![],
             roll_count: 0,
             time_format: None,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct TargetLevel {
-    name: String,
-    level: LevelFilter,
-}
-
-impl<S> From<(S, LevelFilter)> for TargetLevel
-where
-    S: AsRef<str>,
-{
-    fn from(value: (S, LevelFilter)) -> Self {
-        Self {
-            name: value.0.as_ref().to_string(),
-            level: value.1,
         }
     }
 }

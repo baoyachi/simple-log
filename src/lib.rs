@@ -12,7 +12,28 @@ pub use inner::*;
 
 pub use log::Level;
 pub use log::LevelFilter;
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "target")]
 pub use simple_log_derive::*;
 
 pub type SimpleResult<T> = Result<T, String>;
+pub(crate) type InnerLevel = (LevelFilter, Vec<TargetLevel>);
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct TargetLevel {
+    name: String,
+    level: LevelFilter,
+}
+
+impl<S> From<(S, LevelFilter)> for TargetLevel
+where
+    S: AsRef<str>,
+{
+    fn from(value: (S, LevelFilter)) -> Self {
+        Self {
+            name: value.0.as_ref().to_string(),
+            level: value.1,
+        }
+    }
+}

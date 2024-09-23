@@ -1,5 +1,5 @@
 [workspace.package]
-version = "2.0.0"
+version = "2.1.0"
 edition = "2021"
 authors = ["baoyachi <liaoymxsdl@gmail.com>"]
 description = "A simple log. It's really simple use"
@@ -26,10 +26,10 @@ license.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-log = "0.4.11"
+log = { version = "0.4.11", features = ["serde", "std"] }
 log4rs = { version = "1.1.1", default-features = false, features = ["all_components", "humantime", "serde", "serde-value", "yaml_format", "gzip"], optional = true }
 once_cell = { version = "1.15.0", default-features = false, optional = true }
-serde = { version = "1.0.145", default-features = false, features = ["derive"] }
+serde = { version = "1.0.145", features = ["derive"] }
 winnow = "0.6.18"
 
 [dependencies.simple-log-derive]

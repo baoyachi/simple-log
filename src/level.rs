@@ -1,4 +1,4 @@
-use crate::inner::InnerLevel;
+use crate::InnerLevel;
 use core::fmt;
 use log::{Level, LevelFilter};
 pub use parser::*;
@@ -6,8 +6,7 @@ use serde::de::DeserializeSeed;
 use serde::{de, Deserializer};
 
 pub(crate) mod parser {
-    use crate::inner::InnerLevel;
-    use crate::TargetLevel;
+    use crate::{InnerLevel, TargetLevel};
     use log::LevelFilter;
     use std::str::FromStr;
     use winnow::ascii::{alpha1, multispace0};

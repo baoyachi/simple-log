@@ -74,7 +74,7 @@ impl<'de> de::Visitor<'de> for KindSerde {
     }
 }
 
-pub fn deserialize_out_kind<'de, D>(deserializer: D) -> Result<Vec<OutKind>, D::Error>
+pub(crate) fn deserialize_out_kind<'de, D>(deserializer: D) -> Result<Vec<OutKind>, D::Error>
 where
     D: Deserializer<'de>,
 {

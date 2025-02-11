@@ -30,7 +30,7 @@ log = { version = "0.4.11", features = ["serde", "std"] }
 log4rs = { version = "1.1.1", default-features = false, features = ["all_components", "humantime", "serde", "serde-value", "yaml_format", "gzip"], optional = true }
 once_cell = { version = "1.15.0", default-features = false, optional = true }
 serde = { version = "1.0.145", features = ["derive"] }
-winnow = "0.6.18"
+winnow = "0.7.2"
 
 [dependencies.simple-log-derive]
 path = "derive"

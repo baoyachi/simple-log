@@ -12,7 +12,7 @@ pub(crate) mod parser {
     use winnow::ascii::{alpha1, multispace0};
     use winnow::combinator::{opt, repeat};
     use winnow::token::take_while;
-    use winnow::{PResult, Parser};
+    use winnow::{Parser, Result as WResult};
 
     ///
     /// ```rust
@@ -85,17 +85,17 @@ pub(crate) mod parser {
         }
     }
 
-    fn level(input: &mut &str) -> PResult<LevelFilter> {
+    fn level(input: &mut &str) -> WResult<LevelFilter> {
         alpha1.try_map(LevelFilter::from_str).parse_next(input)
     }
 
-    fn target_level(input: &mut &str) -> PResult<TargetLevel> {
+    fn target_level(input: &mut &str) -> WResult<TargetLevel> {
         (multispace0, target_name, '=', level, multispace0, opt(','))
             .map(|(_, name, _, level, _, _)| (name, level).into())
             .parse_next(input)
     }
 
-    fn target_name<'a>(input: &mut &'a str) -> PResult<&'a str> {
+    fn target_name<'a>(input: &mut &'a str) -> WResult<&'a str> {
         take_while(1.., ('0'..='9', 'A'..='Z', 'a'..='z', ':', '_')).parse_next(input)
     }
 }
@@ -164,7 +164,7 @@ impl<'de> DeserializeSeed<'de> for LevelSerde {
     }
 }
 
-impl<'de> serde::de::Visitor<'de> for LevelSerde {
+impl serde::de::Visitor<'_> for LevelSerde {
     type Value = InnerLevel;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {

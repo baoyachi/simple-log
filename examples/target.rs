@@ -19,11 +19,11 @@
 #[macro_use]
 extern crate simple_log;
 
+simple_log::log_target!(ctrl);
+simple_log::log_target!(parser, launch, conf, bench);
+
 fn main() -> Result<(), String> {
     simple_log::console("trace")?;
-
-    simple_log::log_target!(ctrl);
-    simple_log::log_target!(parser, launch, conf, bench);
 
     trace_ctrl!("test target trace");
     trace_parser!("test target trace");

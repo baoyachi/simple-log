@@ -12,7 +12,6 @@ pub use inner::*;
 
 pub use log::Level;
 pub use log::LevelFilter;
-use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "target")]
@@ -40,4 +39,4 @@ where
 }
 
 #[cfg(feature = "println")]
-pub static SIMPLE_LOG_INSTANCE: OnceCell<()> = OnceCell::new();
+pub static SIMPLE_LOG_INSTANCE: once_cell::sync::OnceCell<()> = once_cell::sync::OnceCell::new();

@@ -1,5 +1,3 @@
-use once_cell::sync::OnceCell;
-
 #[macro_export(local_inner_macros)]
 macro_rules! error {
     (target: $target:expr, $($arg:tt)+) => (

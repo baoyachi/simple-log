@@ -12,6 +12,7 @@ pub use inner::*;
 
 pub use log::Level;
 pub use log::LevelFilter;
+use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "target")]
@@ -39,6 +40,4 @@ where
 }
 
 #[cfg(feature = "println")]
-use std::sync::atomic::AtomicBool;
-#[cfg(feature = "println")]
-pub static PRINTLN_INITIALIZED: AtomicBool = AtomicBool::new(false);
+pub static SIMPLE_LOG_INSTANCE: OnceCell<()> = OnceCell::new();

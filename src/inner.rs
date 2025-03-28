@@ -108,7 +108,8 @@ const SIMPLE_LOG_FILE: &str = "simple_log_file";
 const SIMPLE_LOG_CONSOLE: &str = "simple_log_console";
 const SIMPLE_LOG_BASE_NAME: &str = "simple_log";
 
-const DEFAULT_DATE_TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S.%f";
+pub const DEFAULT_DATE_TIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S.%f";
+pub const DEFAULT_HOUR_TIME_FORMAT: &str = "%H:%M:%S.%f";
 
 /// simple-log global config.
 struct LogConf {

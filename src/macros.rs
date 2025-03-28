@@ -78,3 +78,23 @@ macro_rules! quick {
         $crate::quick_log_level($level, Some($path)).unwrap()
     }};
 }
+
+#[cfg(feature = "println")]
+#[macro_export]
+macro_rules! println {
+    ($($arg:tt)+) => (
+
+        if !$crate::PRINTLN_INITIALIZED.load(std::sync::atomic::Ordering::SeqCst) {
+            if !$crate::PRINTLN_INITIALIZED.swap(true, std::sync::atomic::Ordering::SeqCst) {
+                $crate::new(
+                    $crate::LogConfigBuilder::builder()
+                        .output_console()
+                        .time_format($crate::DEFAULT_HOUR_TIME_FORMAT)
+                        .build()
+                ).unwrap()
+            }
+        }
+
+        $crate::log::debug!($($arg)+);
+    )
+}

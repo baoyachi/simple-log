@@ -79,6 +79,7 @@ macro_rules! quick {
     }};
 }
 
+#[cfg(feature = "println")]
 #[macro_export]
 macro_rules! println {
     ($($arg:tt)+) => (

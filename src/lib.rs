@@ -37,3 +37,8 @@ where
         }
     }
 }
+
+#[cfg(feature = "println")]
+use std::sync::atomic::AtomicBool;
+#[cfg(feature = "println")]
+pub static PRINTLN_INITIALIZED: AtomicBool = AtomicBool::new(false);

@@ -86,7 +86,12 @@ macro_rules! println {
 
         if !$crate::PRINTLN_INITIALIZED.load(std::sync::atomic::Ordering::SeqCst) {
             if !$crate::PRINTLN_INITIALIZED.swap(true, std::sync::atomic::Ordering::SeqCst) {
-                $crate::console($crate::Level::Debug).unwrap();
+                $crate::new(
+                    $crate::LogConfigBuilder::builder()
+                        .output_console()
+                        .time_format($crate::DEFAULT_HOUR_TIME_FORMAT)
+                        .build()
+                ).unwrap()
             }
         }
 

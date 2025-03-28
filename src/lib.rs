@@ -39,6 +39,4 @@ where
 }
 
 #[cfg(feature = "println")]
-use std::sync::atomic::AtomicBool;
-#[cfg(feature = "println")]
-pub static PRINTLN_INITIALIZED: AtomicBool = AtomicBool::new(false);
+pub static SIMPLE_LOG_INSTANCE: once_cell::sync::OnceCell<()> = once_cell::sync::OnceCell::new();
